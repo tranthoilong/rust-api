@@ -1,0 +1,63 @@
+// use axum::{
+//     routing::get,
+//     Router,
+//     extract::State,
+//     response::Json,
+// };
+// use dotenvy::dotenv;
+// use sqlx::{Pool, Postgres};
+// use std::{env, sync::Arc};
+
+// #[derive(Clone)]
+// struct AppState {
+//     db: Pool<Postgres>,
+// }
+
+// #[tokio::main]
+// async fn main() {
+//     dotenv().ok();
+
+//     // 1️⃣ Đọc DATABASE_URL
+//     let database_url =
+//         env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+//     // 2️⃣ Tạo connection pool
+//     let pool = sqlx::postgres::PgPoolOptions::new()
+//         .max_connections(5)
+//         .connect(&database_url)
+//         .await
+//         .expect("Cannot connect to database");
+
+//     println!("✅ Connected to PostgreSQL");
+
+//     // 3️⃣ AppState (share pool cho toàn app)
+//     let state = Arc::new(AppState { db: pool });
+
+//     // 4️⃣ Router
+//     let app = Router::new()
+//         .route("/", get(health))
+//         .with_state(state);
+
+//     let port = env::var("PORT").unwrap_or("4000".to_string());
+//     let addr = format!("0.0.0.0:{}", port);
+
+//     let listener = tokio::net::TcpListener::bind(&addr)
+//         .await
+//         .unwrap();
+
+//     println!("🚀 Server running at http://{}", addr);
+
+//     axum::serve(listener, app).await.unwrap();
+// }
+
+// async fn health(
+//     State(state): State<Arc<AppState>>,
+// ) -> Json<&'static str> {
+//     // Test DB connection
+//     let _ = sqlx::query("SELECT 1")
+//         .execute(&state.db)
+//         .await
+//         .unwrap();
+
+//     Json("DB connected OK")
+// }
