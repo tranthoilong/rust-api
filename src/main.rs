@@ -76,6 +76,15 @@ async fn main() {
                         .patch(update_permission)
                         .delete(delete_permission),
                 )
+                .nest(
+                    "/admin",
+                    Router::new()
+                        .route("/dashboard", get(|| async { "Admin Dashboard" }))
+                        .route_layer(middleware::from_fn_with_state(
+                            state.clone(),
+                            crate::interface::http::middleware::permission::require_admin_role,
+                        )),
+                )
                 .route_layer(middleware::from_fn(auth_middleware)),
         )
         .route(&format!("{}/auth/login", prefix_api), post(login))

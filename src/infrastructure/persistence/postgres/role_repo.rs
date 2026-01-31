@@ -82,4 +82,20 @@ impl RoleRepository for PgRoleRepository {
 
         Ok(())
     }
+
+    async fn find_by_user_id(&self, user_id: i32) -> Result<Vec<Role>, String> {
+        sqlx::query_as!(
+            Role,
+            r#"
+            SELECT r.id, r.name, r.created_at, r.updated_at, r.deleted_at
+            FROM roles r
+            INNER JOIN user_roles ur ON r.id = ur.role_id
+            WHERE ur.user_id = $1 AND r.deleted_at IS NULL
+            "#,
+            user_id
+        )
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
+    }
 }

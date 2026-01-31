@@ -6,7 +6,7 @@ use axum::{
 };
 
 pub async fn auth_middleware(
-    req: Request<Body>,
+    mut req: Request<Body>,
     next: Next,
 ) -> Result<Response, (StatusCode, String)> {
     let auth_header = req
@@ -20,8 +20,8 @@ pub async fn auth_middleware(
             let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
             match crate::shared::utils::jwt::verify_jwt(token, secret.as_bytes()) {
-                Ok(_claims) => {
-                    // TODO: You can insert claims into request extensions here if needed
+                Ok(claims) => {
+                    req.extensions_mut().insert(claims);
                     Ok(next.run(req).await)
                 }
                 Err(_) => Err((StatusCode::UNAUTHORIZED, "Invalid token".to_string())),
