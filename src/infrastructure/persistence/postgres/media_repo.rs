@@ -42,7 +42,7 @@ impl MediaRepository for PgMediaRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Media>, String> {
         sqlx::query_as!(
             Media,
-            r#"SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE id = $1"#,
+            r#"SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE id = $1 AND deleted_at IS NULL"#,
             id
         )
         .fetch_optional(&self.pool)
@@ -53,7 +53,7 @@ impl MediaRepository for PgMediaRepository {
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Media>, String> {
         sqlx::query_as!(
             Media,
-            r#"SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE user_id = $1"#,
+            r#"SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE user_id = $1 AND deleted_at IS NULL"#,
             user_id
         )
         .fetch_all(&self.pool)
@@ -149,5 +149,41 @@ impl MediaRepository for PgMediaRepository {
             next_cursor,
             limit: built.limit,
         })
+    }
+
+    async fn soft_delete(&self, id: Uuid) -> Result<(), String> {
+        sqlx::query!(
+            r#"
+            UPDATE media
+            SET deleted_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            "#,
+            id
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn soft_delete_many(&self, ids: &[Uuid]) -> Result<(), String> {
+        if ids.is_empty() {
+            return Ok(());
+        }
+
+        sqlx::query!(
+            r#"
+            UPDATE media
+            SET deleted_at = NOW()
+            WHERE id = ANY($1) AND deleted_at IS NULL
+            "#,
+            ids
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
     }
 }

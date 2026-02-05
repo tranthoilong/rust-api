@@ -10,7 +10,12 @@ use tokio::{fs, io::AsyncWriteExt};
 
 use crate::{
     app::state::AppState,
-    application::media::{create_media::CreateMediaUseCase, get_media::GetMediaUseCase},
+    application::media::{
+        bulk_delete_media::{BulkDeleteMediaInput, BulkDeleteMediaUseCase},
+        create_media::CreateMediaUseCase,
+        delete_media::DeleteMediaUseCase,
+        get_media::GetMediaUseCase,
+    },
     domain::entities::media::{Media, NewMedia},
     interface::http::response::ApiResponse,
     shared::utils::jwt::Claims,
@@ -118,6 +123,46 @@ pub async fn get_media(
         Ok(Some(media)) => Ok(Json(media)),
         Ok(None) => Err((StatusCode::NOT_FOUND, "Media not found".to_string())),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e)),
+    }
+}
+
+pub async fn delete_media(
+    State(state): State<Arc<AppState>>,
+    AxumPath(id): AxumPath<uuid::Uuid>,
+) -> impl IntoResponse {
+    let use_case = DeleteMediaUseCase::new(state.media_repo.clone());
+
+    match use_case.execute(id).await {
+        Ok(_) => ApiResponse::success(serde_json::json!({}), Some("Media deleted".to_string()))
+            .into_response(),
+        Err(e) => ApiResponse::<()>::error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL_SERVER_ERROR".to_string(),
+            e,
+            None,
+            None,
+        )
+        .into_response(),
+    }
+}
+
+pub async fn bulk_delete_media(
+    State(state): State<Arc<AppState>>,
+    axum::Json(payload): axum::Json<BulkDeleteMediaInput>,
+) -> impl IntoResponse {
+    let use_case = BulkDeleteMediaUseCase::new(state.media_repo.clone());
+
+    match use_case.execute(payload).await {
+        Ok(_) => ApiResponse::success(serde_json::json!({}), Some("Media deleted".to_string()))
+            .into_response(),
+        Err(e) => ApiResponse::<()>::error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL_SERVER_ERROR".to_string(),
+            e,
+            None,
+            None,
+        )
+        .into_response(),
     }
 }
 

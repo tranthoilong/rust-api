@@ -23,6 +23,11 @@ pub trait MediaRepository: Send + Sync {
     ) -> Result<PaginatedResult<Media>, String>;
     #[allow(dead_code)]
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Media>, String>;
+
+    /// Xoá mềm 1 media
+    async fn soft_delete(&self, id: Uuid) -> Result<(), String>;
+    /// Xoá mềm nhiều media
+    async fn soft_delete_many(&self, ids: &[Uuid]) -> Result<(), String>;
 }
 
 #[async_trait]
@@ -47,5 +52,13 @@ impl<T: MediaRepository + ?Sized + Send + Sync> MediaRepository for std::sync::A
 
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Media>, String> {
         (**self).find_by_user_id(user_id).await
+    }
+
+    async fn soft_delete(&self, id: Uuid) -> Result<(), String> {
+        (**self).soft_delete(id).await
+    }
+
+    async fn soft_delete_many(&self, ids: &[Uuid]) -> Result<(), String> {
+        (**self).soft_delete_many(ids).await
     }
 }

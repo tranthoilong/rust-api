@@ -8,7 +8,9 @@ use crate::infrastructure::persistence::postgres::{
     user_profile_repo::PgUserProfileRepository, user_repo::PgUserRepository,
 };
 use crate::interface::http::handlers::auth_handler::{login, me, register};
-use crate::interface::http::handlers::media_handler::{get_media, get_user_media, upload_media};
+use crate::interface::http::handlers::media_handler::{
+    bulk_delete_media, delete_media, get_media, get_user_media, upload_media,
+};
 use crate::interface::http::handlers::permission_handler::{
     create_permission, delete_permission, get_permission, get_permissions, update_permission,
 };
@@ -151,7 +153,8 @@ async fn main() {
                         .delete(delete_permission),
                 )
                 .route("/media", post(upload_media))
-                .route("/media/:id", get(get_media))
+                .route("/media/:id", get(get_media).delete(delete_media))
+                .route("/media/bulk-delete", post(bulk_delete_media))
                 .route("/users/:user_id/media", get(get_user_media))
                 .route("/auth/me", get(me))
                 .route("/me/profile", get(get_me_profile).put(update_me_profile))
