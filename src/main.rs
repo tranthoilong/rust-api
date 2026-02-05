@@ -1,7 +1,11 @@
 use crate::app::state::AppState;
 use crate::infrastructure::persistence::postgres::{
+    audit_log_repo::PgAuditLogRepository, banner_repo::PgBannerRepository,
+    category_repo::PgCategoryRepository, language_repo::PgLanguageRepository,
     media_repo::PgMediaRepository, permission_repo::PgPermissionRepository,
-    role_repo::PgRoleRepository, user_repo::PgUserRepository,
+    post_repo::PgPostRepository, role_repo::PgRoleRepository,
+    setting_repo::PgSettingRepository, tag_repo::PgTagRepository,
+    user_profile_repo::PgUserProfileRepository, user_repo::PgUserRepository,
 };
 use crate::interface::http::handlers::auth_handler::{login, me, register};
 use crate::interface::http::handlers::media_handler::{get_media, get_user_media, upload_media};
@@ -15,6 +19,20 @@ use crate::interface::http::handlers::role_handler::{
 use crate::interface::http::handlers::user_handler::{
     assign_role, create_user, delete_user, get_user, get_users, revoke_role, update_user,
 };
+use crate::interface::http::handlers::settings_handler::{
+    get_setting as get_setting_handler, list_settings, update_setting as update_setting_handler,
+};
+use crate::interface::http::handlers::banner_handler::{
+    get_banner_by_key, list_active_banners,
+};
+use crate::interface::http::handlers::user_profile_handler::{
+    get_me_profile, update_me_profile,
+};
+use crate::interface::http::handlers::category_handler::{get_category, list_categories};
+use crate::interface::http::handlers::tag_handler::{get_tag, list_tags};
+use crate::interface::http::handlers::post_handler::{get_post_by_slug, list_posts};
+use crate::interface::http::handlers::language_handler::{list_languages, get_default_language};
+use crate::interface::http::handlers::audit_log_handler::list_audit_logs;
 use crate::interface::http::middleware::auth::auth_middleware;
 use axum::{
     Router, middleware,
@@ -51,14 +69,46 @@ async fn main() {
     let permission_repo = Arc::new(PgPermissionRepository::new(pool.clone()))
         as Arc<dyn crate::domain::repositories::permission_repository::PermissionRepository>;
 
-    let media_repo = Arc::new(PgMediaRepository::new(pool))
+    let media_repo = Arc::new(PgMediaRepository::new(pool.clone()))
         as Arc<dyn crate::domain::repositories::media_repository::MediaRepository>;
+
+    let setting_repo = Arc::new(PgSettingRepository::new(pool.clone()))
+        as Arc<dyn crate::domain::repositories::setting_repository::SettingRepository>;
+
+    let banner_repo = Arc::new(PgBannerRepository::new(pool.clone()))
+        as Arc<dyn crate::domain::repositories::banner_repository::BannerRepository>;
+
+    let user_profile_repo = Arc::new(PgUserProfileRepository::new(pool.clone()))
+        as Arc<dyn crate::domain::repositories::user_profile_repository::UserProfileRepository>;
+
+    let category_repo = Arc::new(PgCategoryRepository::new(pool.clone()))
+        as Arc<dyn crate::domain::repositories::category_repository::CategoryRepository>;
+
+    let tag_repo = Arc::new(PgTagRepository::new(pool.clone()))
+        as Arc<dyn crate::domain::repositories::tag_repository::TagRepository>;
+
+    let post_repo = Arc::new(PgPostRepository::new(pool.clone()))
+        as Arc<dyn crate::domain::repositories::post_repository::PostRepository>;
+
+    let language_repo = Arc::new(PgLanguageRepository::new(pool.clone()))
+        as Arc<dyn crate::domain::repositories::language_repository::LanguageRepository>;
+
+    let audit_log_repo = Arc::new(PgAuditLogRepository::new(pool.clone()))
+        as Arc<dyn crate::domain::repositories::audit_log_repository::AuditLogRepository>;
 
     let state = Arc::new(AppState {
         user_repo,
         role_repo,
         permission_repo,
         media_repo,
+        setting_repo,
+        banner_repo,
+        user_profile_repo,
+        category_repo,
+        tag_repo,
+        post_repo,
+        language_repo,
+        audit_log_repo,
     });
 
     let app = Router::new()
@@ -96,6 +146,28 @@ async fn main() {
                 .route("/media/:id", get(get_media))
                 .route("/users/:user_id/media", get(get_user_media))
                 .route("/auth/me", get(me))
+                .route("/me/profile", get(get_me_profile).put(update_me_profile))
+                // Settings
+                .route("/settings", get(list_settings))
+                .route(
+                    "/settings/:key",
+                    get(get_setting_handler).put(update_setting_handler),
+                )
+                // Banners
+                .route("/banners/active", get(list_active_banners))
+                .route("/banners/key/:key", get(get_banner_by_key))
+                // Categories & Tags & Posts (blog / content)
+                .route("/categories", get(list_categories))
+                .route("/categories/:slug", get(get_category))
+                .route("/tags", get(list_tags))
+                .route("/tags/:slug", get(get_tag))
+                .route("/posts", get(list_posts))
+                .route("/posts/:slug", get(get_post_by_slug))
+                // Languages
+                .route("/languages", get(list_languages))
+                .route("/languages/default", get(get_default_language))
+                // Audit logs (admin area)
+                .route("/audit-logs", get(list_audit_logs))
                 .nest(
                     "/admin",
                     Router::new()
