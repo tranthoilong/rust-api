@@ -28,9 +28,14 @@ use crate::interface::http::handlers::banner_handler::{
 use crate::interface::http::handlers::user_profile_handler::{
     get_me_profile, update_me_profile,
 };
-use crate::interface::http::handlers::category_handler::{get_category, list_categories};
+use crate::interface::http::handlers::category_handler::{
+    bulk_delete_categories, create_category, delete_category, get_category, list_categories,
+    update_category,
+};
 use crate::interface::http::handlers::tag_handler::{get_tag, list_tags};
-use crate::interface::http::handlers::post_handler::{get_post_by_slug, list_posts};
+use crate::interface::http::handlers::post_handler::{
+    bulk_delete_posts, create_post, delete_post, get_post_by_slug, list_posts, update_post,
+};
 use crate::interface::http::handlers::language_handler::{list_languages, get_default_language};
 use crate::interface::http::handlers::audit_log_handler::list_audit_logs;
 use crate::interface::http::middleware::auth::auth_middleware;
@@ -157,12 +162,20 @@ async fn main() {
                 .route("/banners/active", get(list_active_banners))
                 .route("/banners/key/:key", get(get_banner_by_key))
                 // Categories & Tags & Posts (blog / content)
-                .route("/categories", get(list_categories))
-                .route("/categories/:slug", get(get_category))
+                .route("/categories", get(list_categories).post(create_category))
+                .route(
+                    "/categories/:slug",
+                    get(get_category).patch(update_category).delete(delete_category),
+                )
+                .route("/categories/bulk-delete", post(bulk_delete_categories))
                 .route("/tags", get(list_tags))
                 .route("/tags/:slug", get(get_tag))
-                .route("/posts", get(list_posts))
-                .route("/posts/:slug", get(get_post_by_slug))
+                .route("/posts", get(list_posts).post(create_post))
+                .route(
+                    "/posts/:slug",
+                    get(get_post_by_slug).patch(update_post).delete(delete_post),
+                )
+                .route("/posts/bulk-delete", post(bulk_delete_posts))
                 // Languages
                 .route("/languages", get(list_languages))
                 .route("/languages/default", get(get_default_language))

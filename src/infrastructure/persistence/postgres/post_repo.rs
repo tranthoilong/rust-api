@@ -72,5 +72,104 @@ impl PostRepository for PgPostRepository {
 
         Ok(posts)
     }
+
+    async fn create(&self, post: Post) -> Result<Post, String> {
+        let created = sqlx::query_as!(
+            Post,
+            r#"
+            INSERT INTO posts (
+                id, author_id, category_id, title, slug, excerpt, content,
+                published_at, created_at, updated_at, deleted_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), NULL)
+            RETURNING id, author_id, category_id, title, slug, excerpt, content,
+                      status as "status: PostStatus", published_at,
+                      created_at, updated_at, deleted_at
+            "#,
+            post.id,
+            post.author_id,
+            post.category_id,
+            post.title,
+            post.slug,
+            post.excerpt,
+            post.content,
+            post.published_at,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(created)
+    }
+
+    async fn update(&self, post: Post) -> Result<Post, String> {
+        let updated = sqlx::query_as!(
+            Post,
+            r#"
+            UPDATE posts
+            SET author_id = $2,
+                category_id = $3,
+                title = $4,
+                slug = $5,
+                excerpt = $6,
+                content = $7,
+                published_at = $8,
+                updated_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING id, author_id, category_id, title, slug, excerpt, content,
+                      status as "status: PostStatus", published_at,
+                      created_at, updated_at, deleted_at
+            "#,
+            post.id,
+            post.author_id,
+            post.category_id,
+            post.title,
+            post.slug,
+            post.excerpt,
+            post.content,
+            post.published_at,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(updated)
+    }
+
+    async fn soft_delete(&self, id: Uuid) -> Result<(), String> {
+        sqlx::query!(
+            r#"
+            UPDATE posts
+            SET deleted_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            "#,
+            id
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn soft_delete_many(&self, ids: &[Uuid]) -> Result<(), String> {
+        if ids.is_empty() {
+            return Ok(());
+        }
+
+        sqlx::query!(
+            r#"
+            UPDATE posts
+            SET deleted_at = NOW()
+            WHERE id = ANY($1) AND deleted_at IS NULL
+            "#,
+            ids
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
 }
 

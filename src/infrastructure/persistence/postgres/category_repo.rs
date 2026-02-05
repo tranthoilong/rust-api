@@ -70,5 +70,96 @@ impl CategoryRepository for PgCategoryRepository {
         .await
         .map_err(|e| e.to_string())
     }
+
+    async fn create(&self, category: Category) -> Result<Category, String> {
+        let created = sqlx::query_as!(
+            Category,
+            r#"
+            INSERT INTO categories (
+                id, parent_id, name, slug, type, description,
+                created_at, updated_at, deleted_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW(), NULL)
+            RETURNING id, parent_id, name, slug, type, description,
+                      created_at, updated_at, deleted_at
+            "#,
+            category.id,
+            category.parent_id,
+            category.name,
+            category.slug,
+            category.r#type,
+            category.description,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(created)
+    }
+
+    async fn update(&self, category: Category) -> Result<Category, String> {
+        let updated = sqlx::query_as!(
+            Category,
+            r#"
+            UPDATE categories
+            SET parent_id = $2,
+                name = $3,
+                slug = $4,
+                type = $5,
+                description = $6,
+                updated_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING id, parent_id, name, slug, type, description,
+                      created_at, updated_at, deleted_at
+            "#,
+            category.id,
+            category.parent_id,
+            category.name,
+            category.slug,
+            category.r#type,
+            category.description,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(updated)
+    }
+
+    async fn soft_delete(&self, id: Uuid) -> Result<(), String> {
+        sqlx::query!(
+            r#"
+            UPDATE categories
+            SET deleted_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            "#,
+            id
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn soft_delete_many(&self, ids: &[Uuid]) -> Result<(), String> {
+        if ids.is_empty() {
+            return Ok(());
+        }
+
+        sqlx::query!(
+            r#"
+            UPDATE categories
+            SET deleted_at = NOW()
+            WHERE id = ANY($1) AND deleted_at IS NULL
+            "#,
+            ids
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
 }
 
