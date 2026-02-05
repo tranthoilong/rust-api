@@ -1,10 +1,12 @@
 use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+use uuid::Uuid;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Media {
-    pub id: i32,
-    pub user_id: i32,
+    pub id: Uuid,
+    pub user_id: Uuid,
     pub media_type: String,
     pub file_path: String,
     pub created_at: Option<NaiveDateTime>,
@@ -13,7 +15,7 @@ pub struct Media {
 }
 
 impl Media {
-    pub fn generate_storage_path(user_id: i32, media_type: &str, filename: &str) -> String {
+    pub fn generate_storage_path(user_id: Uuid, media_type: &str, filename: &str) -> String {
         let now = Utc::now();
         format!(
             "/{}/{}/{}/{}/{}/{}",
@@ -29,7 +31,7 @@ impl Media {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NewMedia {
-    pub user_id: i32,
+    pub user_id: Uuid,
     pub media_type: String,
     pub file_path: String,
 }

@@ -6,6 +6,8 @@ pub struct UpdatePermissionUseCase {
     repo: Arc<dyn PermissionRepository>,
 }
 
+use uuid::Uuid;
+
 impl UpdatePermissionUseCase {
     pub fn new(repo: Arc<dyn PermissionRepository>) -> Self {
         Self { repo }
@@ -13,7 +15,7 @@ impl UpdatePermissionUseCase {
 
     pub async fn execute(
         &self,
-        id: i32,
+        id: Uuid,
         permission: UpdatePermission,
     ) -> Result<Permission, String> {
         self.repo.update(id, permission).await

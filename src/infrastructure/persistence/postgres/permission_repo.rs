@@ -14,6 +14,8 @@ impl PgPermissionRepository {
     }
 }
 
+use uuid::Uuid;
+
 #[async_trait]
 impl PermissionRepository for PgPermissionRepository {
     async fn find_all(&self) -> Result<Vec<Permission>, String> {
@@ -26,7 +28,7 @@ impl PermissionRepository for PgPermissionRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_by_id(&self, id: i32) -> Result<Option<Permission>, String> {
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<Permission>, String> {
         sqlx::query_as!(
             Permission,
             r#"SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE id = $1"#,
@@ -52,7 +54,7 @@ impl PermissionRepository for PgPermissionRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn update(&self, id: i32, permission: UpdatePermission) -> Result<Permission, String> {
+    async fn update(&self, id: Uuid, permission: UpdatePermission) -> Result<Permission, String> {
         sqlx::query_as!(
             Permission,
             r#"
@@ -70,7 +72,7 @@ impl PermissionRepository for PgPermissionRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn delete(&self, id: i32) -> Result<(), String> {
+    async fn delete(&self, id: Uuid) -> Result<(), String> {
         let result = sqlx::query!(
             "UPDATE permissions SET deleted_at = NOW() WHERE id = $1",
             id
@@ -86,7 +88,7 @@ impl PermissionRepository for PgPermissionRepository {
         Ok(())
     }
 
-    async fn find_by_role_id(&self, role_id: i32) -> Result<Vec<Permission>, String> {
+    async fn find_by_role_id(&self, role_id: Uuid) -> Result<Vec<Permission>, String> {
         sqlx::query_as!(
             Permission,
             r#"
@@ -102,7 +104,7 @@ impl PermissionRepository for PgPermissionRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn assign_to_role(&self, role_id: i32, permission_id: i32) -> Result<(), String> {
+    async fn assign_to_role(&self, role_id: Uuid, permission_id: Uuid) -> Result<(), String> {
         let existing = sqlx::query!(
             r#"SELECT id, deleted_at FROM role_permissions WHERE role_id = $1 AND permission_id = $2 ORDER BY created_at DESC LIMIT 1"#,
             role_id,
@@ -136,7 +138,7 @@ impl PermissionRepository for PgPermissionRepository {
         Ok(())
     }
 
-    async fn revoke_from_role(&self, role_id: i32, permission_id: i32) -> Result<(), String> {
+    async fn revoke_from_role(&self, role_id: Uuid, permission_id: Uuid) -> Result<(), String> {
         sqlx::query!(
             r#"UPDATE role_permissions SET deleted_at = NOW() WHERE role_id = $1 AND permission_id = $2 AND deleted_at IS NULL"#,
             role_id,

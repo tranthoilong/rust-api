@@ -5,12 +5,14 @@ pub struct AssignRoleToUserUseCase {
     repo: Arc<dyn RoleRepository>,
 }
 
+use uuid::Uuid;
+
 impl AssignRoleToUserUseCase {
     pub fn new(repo: Arc<dyn RoleRepository>) -> Self {
         Self { repo }
     }
 
-    pub async fn execute(&self, user_id: i32, role_id: i32) -> Result<(), String> {
+    pub async fn execute(&self, user_id: Uuid, role_id: Uuid) -> Result<(), String> {
         self.repo.assign_to_user(user_id, role_id).await
     }
 }

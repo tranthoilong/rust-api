@@ -10,9 +10,11 @@ pub enum UserStatus {
     Deleted,
 }
 
+use uuid::Uuid;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
-    pub id: i32,
+    pub id: Uuid,
     pub name: String,
     pub email: String,
     #[serde(skip_serializing)] // Don't return password in JSON

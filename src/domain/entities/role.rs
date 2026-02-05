@@ -1,9 +1,11 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
+use uuid::Uuid;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Role {
-    pub id: i32,
+    pub id: Uuid,
     pub name: String,
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>,

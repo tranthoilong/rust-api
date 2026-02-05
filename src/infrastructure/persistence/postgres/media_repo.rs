@@ -14,6 +14,8 @@ impl PgMediaRepository {
     }
 }
 
+use uuid::Uuid;
+
 #[async_trait]
 impl MediaRepository for PgMediaRepository {
     async fn create(&self, media: NewMedia) -> Result<Media, String> {
@@ -33,7 +35,7 @@ impl MediaRepository for PgMediaRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_by_id(&self, id: i32) -> Result<Option<Media>, String> {
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<Media>, String> {
         sqlx::query_as!(
             Media,
             r#"SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE id = $1"#,
@@ -44,7 +46,7 @@ impl MediaRepository for PgMediaRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_by_user_id(&self, user_id: i32) -> Result<Vec<Media>, String> {
+    async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Media>, String> {
         sqlx::query_as!(
             Media,
             r#"SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE user_id = $1"#,

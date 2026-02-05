@@ -54,13 +54,13 @@ pub async fn me(
     let usecase = GetUserUseCase::new(state.user_repo.clone());
 
     // claims.sub is user_id as string
-    let user_id = match claims.sub.parse::<i32>() {
+    let user_id = match uuid::Uuid::parse_str(&claims.sub) {
         Ok(id) => id,
         Err(_) => {
             return ApiResponse::<()>::error(
                 StatusCode::BAD_REQUEST,
                 "INVALID_TOKEN_SUB".to_string(),
-                "Token subject is not a valid integer".to_string(),
+                "Token subject is not a valid uuid".to_string(),
                 None,
                 None,
             )

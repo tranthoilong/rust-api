@@ -54,9 +54,11 @@ pub async fn create_permission(
     }
 }
 
+use uuid::Uuid;
+
 pub async fn get_permission(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
     let usecase = GetPermissionUseCase::new(state.permission_repo.clone());
     match usecase.execute(id).await {
@@ -84,7 +86,7 @@ pub async fn get_permission(
 
 pub async fn update_permission(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<UpdatePermission>,
 ) -> impl IntoResponse {
     let usecase = UpdatePermissionUseCase::new(state.permission_repo.clone());
@@ -103,7 +105,7 @@ pub async fn update_permission(
 
 pub async fn delete_permission(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
     let usecase = DeletePermissionUseCase::new(state.permission_repo.clone());
     match usecase.execute(id).await {

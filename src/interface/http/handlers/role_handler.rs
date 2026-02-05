@@ -55,9 +55,11 @@ pub async fn create_role(
     }
 }
 
+use uuid::Uuid;
+
 pub async fn get_role(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
     let usecase = GetRoleUseCase::new(state.role_repo.clone());
     match usecase.execute(id).await {
@@ -83,7 +85,7 @@ pub async fn get_role(
 
 pub async fn update_role(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<UpdateRole>,
 ) -> impl IntoResponse {
     let usecase = UpdateRoleUseCase::new(state.role_repo.clone());
@@ -102,7 +104,7 @@ pub async fn update_role(
 
 pub async fn delete_role(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
     let usecase = DeleteRoleUseCase::new(state.role_repo.clone());
     match usecase.execute(id).await {
@@ -122,7 +124,7 @@ pub async fn delete_role(
 
 pub async fn get_role_permissions(
     State(state): State<Arc<AppState>>,
-    Path(role_id): Path<i32>,
+    Path(role_id): Path<Uuid>,
 ) -> impl IntoResponse {
     let usecase = GetPermissionsByRoleUseCase::new(state.permission_repo.clone());
     match usecase.execute(role_id).await {
@@ -146,7 +148,7 @@ pub async fn get_role_permissions(
 
 pub async fn assign_permission(
     State(state): State<Arc<AppState>>,
-    Path((role_id, permission_id)): Path<(i32, i32)>,
+    Path((role_id, permission_id)): Path<(Uuid, Uuid)>,
 ) -> impl IntoResponse {
     let usecase = AssignPermissionToRoleUseCase::new(state.permission_repo.clone());
     match usecase.execute(role_id, permission_id).await {
@@ -168,7 +170,7 @@ pub async fn assign_permission(
 
 pub async fn revoke_permission(
     State(state): State<Arc<AppState>>,
-    Path((role_id, permission_id)): Path<(i32, i32)>,
+    Path((role_id, permission_id)): Path<(Uuid, Uuid)>,
 ) -> impl IntoResponse {
     let usecase = RevokePermissionFromRoleUseCase::new(state.permission_repo.clone());
     match usecase.execute(role_id, permission_id).await {

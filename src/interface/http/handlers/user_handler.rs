@@ -16,6 +16,7 @@ use crate::application::user::{
 };
 use crate::domain::entities::user::{NewUser, UpdateUser};
 use crate::interface::http::response::ApiResponse;
+use uuid::Uuid;
 
 pub async fn get_users(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let usecase = GetUsersUseCase::new(state.user_repo.clone());
@@ -56,7 +57,7 @@ pub async fn create_user(
 
 pub async fn get_user(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
     let usecase = GetUserUseCase::new(state.user_repo.clone());
     match usecase.execute(id).await {
@@ -82,7 +83,7 @@ pub async fn get_user(
 
 pub async fn update_user(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<UpdateUser>,
 ) -> impl IntoResponse {
     let usecase = UpdateUserUseCase::new(state.user_repo.clone());
@@ -101,7 +102,7 @@ pub async fn update_user(
 
 pub async fn delete_user(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
     let usecase = DeleteUserUseCase::new(state.user_repo.clone());
     match usecase.execute(id).await {
@@ -121,7 +122,7 @@ pub async fn delete_user(
 
 pub async fn assign_role(
     State(state): State<Arc<AppState>>,
-    Path((user_id, role_id)): Path<(i32, i32)>,
+    Path((user_id, role_id)): Path<(Uuid, Uuid)>,
 ) -> impl IntoResponse {
     let usecase = AssignRoleToUserUseCase::new(state.role_repo.clone());
     match usecase.execute(user_id, role_id).await {
@@ -141,7 +142,7 @@ pub async fn assign_role(
 
 pub async fn revoke_role(
     State(state): State<Arc<AppState>>,
-    Path((user_id, role_id)): Path<(i32, i32)>,
+    Path((user_id, role_id)): Path<(Uuid, Uuid)>,
 ) -> impl IntoResponse {
     let usecase = RevokeRoleFromUserUseCase::new(state.role_repo.clone());
     match usecase.execute(user_id, role_id).await {

@@ -14,6 +14,8 @@ impl PgUserRepository {
     }
 }
 
+use uuid::Uuid;
+
 #[async_trait]
 impl UserRepository for PgUserRepository {
     async fn find_all(&self) -> Result<Vec<User>, String> {
@@ -26,7 +28,7 @@ impl UserRepository for PgUserRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_by_id(&self, id: i32) -> Result<Option<User>, String> {
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, String> {
         sqlx::query_as!(
             User,
             r#"SELECT id, name, email, password, status as "status: UserStatus", created_at, updated_at, deleted_at FROM users WHERE id = $1"#,
@@ -65,7 +67,7 @@ impl UserRepository for PgUserRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn update(&self, id: i32, user: UpdateUser) -> Result<User, String> {
+    async fn update(&self, id: Uuid, user: UpdateUser) -> Result<User, String> {
         sqlx::query_as!(
             User,
             r#"
@@ -89,7 +91,7 @@ impl UserRepository for PgUserRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn delete(&self, id: i32) -> Result<(), String> {
+    async fn delete(&self, id: Uuid) -> Result<(), String> {
         // Soft delete
         let result = sqlx::query!(
             "UPDATE users SET deleted_at = NOW(), status = 'deleted' WHERE id = $1",

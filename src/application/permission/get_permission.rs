@@ -6,12 +6,14 @@ pub struct GetPermissionUseCase {
     repo: Arc<dyn PermissionRepository>,
 }
 
+use uuid::Uuid;
+
 impl GetPermissionUseCase {
     pub fn new(repo: Arc<dyn PermissionRepository>) -> Self {
         Self { repo }
     }
 
-    pub async fn execute(&self, id: i32) -> Result<Option<Permission>, String> {
+    pub async fn execute(&self, id: Uuid) -> Result<Option<Permission>, String> {
         self.repo.find_by_id(id).await
     }
 }

@@ -20,7 +20,7 @@ pub async fn require_admin_role(
     next: Next,
 ) -> Result<Response, (StatusCode, String)> {
     // 1. Lấy userId từ claims
-    let user_id = claims.sub.parse::<i32>().map_err(|_| {
+    let user_id = uuid::Uuid::parse_str(&claims.sub).map_err(|_| {
         (
             StatusCode::BAD_REQUEST,
             "Invalid user ID in token".to_string(),

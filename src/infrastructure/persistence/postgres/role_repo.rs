@@ -14,6 +14,8 @@ impl PgRoleRepository {
     }
 }
 
+use uuid::Uuid;
+
 #[async_trait]
 impl RoleRepository for PgRoleRepository {
     async fn find_all(&self) -> Result<Vec<Role>, String> {
@@ -26,7 +28,7 @@ impl RoleRepository for PgRoleRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_by_id(&self, id: i32) -> Result<Option<Role>, String> {
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<Role>, String> {
         sqlx::query_as!(
             Role,
             r#"SELECT id, name, created_at, updated_at, deleted_at FROM roles WHERE id = $1"#,
@@ -52,7 +54,7 @@ impl RoleRepository for PgRoleRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn update(&self, id: i32, role: UpdateRole) -> Result<Role, String> {
+    async fn update(&self, id: Uuid, role: UpdateRole) -> Result<Role, String> {
         sqlx::query_as!(
             Role,
             r#"
@@ -70,7 +72,7 @@ impl RoleRepository for PgRoleRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn delete(&self, id: i32) -> Result<(), String> {
+    async fn delete(&self, id: Uuid) -> Result<(), String> {
         let result = sqlx::query!("UPDATE roles SET deleted_at = NOW() WHERE id = $1", id)
             .execute(&self.pool)
             .await
@@ -83,7 +85,7 @@ impl RoleRepository for PgRoleRepository {
         Ok(())
     }
 
-    async fn find_by_user_id(&self, user_id: i32) -> Result<Vec<Role>, String> {
+    async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Role>, String> {
         sqlx::query_as!(
             Role,
             r#"
@@ -99,7 +101,7 @@ impl RoleRepository for PgRoleRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn assign_to_user(&self, user_id: i32, role_id: i32) -> Result<(), String> {
+    async fn assign_to_user(&self, user_id: Uuid, role_id: Uuid) -> Result<(), String> {
         let existing = sqlx::query!(
             r#"SELECT id, deleted_at FROM user_roles WHERE user_id = $1 AND role_id = $2 ORDER BY created_at DESC LIMIT 1"#,
             user_id,
@@ -136,7 +138,7 @@ impl RoleRepository for PgRoleRepository {
         Ok(())
     }
 
-    async fn revoke_from_user(&self, user_id: i32, role_id: i32) -> Result<(), String> {
+    async fn revoke_from_user(&self, user_id: Uuid, role_id: Uuid) -> Result<(), String> {
         sqlx::query!(
             r#"UPDATE user_roles SET deleted_at = NOW() WHERE user_id = $1 AND role_id = $2 AND deleted_at IS NULL"#,
             user_id,

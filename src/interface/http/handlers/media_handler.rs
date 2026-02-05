@@ -21,7 +21,7 @@ pub async fn upload_media(
     Extension(claims): Extension<Claims>,
     mut multipart: Multipart,
 ) -> Result<Json<Media>, (StatusCode, String)> {
-    let user_id = claims.sub.parse::<i32>().map_err(|_| {
+    let user_id = uuid::Uuid::parse_str(&claims.sub).map_err(|_| {
         (
             StatusCode::BAD_REQUEST,
             "Invalid user ID in token".to_string(),
@@ -107,7 +107,7 @@ pub async fn upload_media(
 
 pub async fn get_media(
     State(state): State<Arc<AppState>>,
-    AxumPath(id): AxumPath<i32>,
+    AxumPath(id): AxumPath<uuid::Uuid>,
 ) -> Result<Json<Media>, (StatusCode, String)> {
     let use_case = GetMediaUseCase::new(state.media_repo.clone());
 
@@ -120,7 +120,7 @@ pub async fn get_media(
 
 pub async fn get_user_media(
     State(state): State<Arc<AppState>>,
-    AxumPath(user_id): AxumPath<i32>,
+    AxumPath(user_id): AxumPath<uuid::Uuid>,
 ) -> Result<Json<Vec<Media>>, (StatusCode, String)> {
     let use_case = GetMediaUseCase::new(state.media_repo.clone());
 
