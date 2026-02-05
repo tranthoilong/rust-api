@@ -70,5 +70,93 @@ impl TagRepository for PgTagRepository {
         .await
         .map_err(|e| e.to_string())
     }
+
+    async fn create(&self, tag: Tag) -> Result<Tag, String> {
+        let created = sqlx::query_as!(
+            Tag,
+            r#"
+            INSERT INTO tags (
+                id, name, slug, type, description,
+                created_at, updated_at, deleted_at
+            )
+            VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)
+            RETURNING id, name, slug, type, description,
+                      created_at, updated_at, deleted_at
+            "#,
+            tag.id,
+            tag.name,
+            tag.slug,
+            tag.r#type,
+            tag.description,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(created)
+    }
+
+    async fn update(&self, tag: Tag) -> Result<Tag, String> {
+        let updated = sqlx::query_as!(
+            Tag,
+            r#"
+            UPDATE tags
+            SET name = $2,
+                slug = $3,
+                type = $4,
+                description = $5,
+                updated_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING id, name, slug, type, description,
+                      created_at, updated_at, deleted_at
+            "#,
+            tag.id,
+            tag.name,
+            tag.slug,
+            tag.r#type,
+            tag.description,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(updated)
+    }
+
+    async fn soft_delete(&self, id: Uuid) -> Result<(), String> {
+        sqlx::query!(
+            r#"
+            UPDATE tags
+            SET deleted_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            "#,
+            id
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn soft_delete_many(&self, ids: &[Uuid]) -> Result<(), String> {
+        if ids.is_empty() {
+            return Ok(());
+        }
+
+        sqlx::query!(
+            r#"
+            UPDATE tags
+            SET deleted_at = NOW()
+            WHERE id = ANY($1) AND deleted_at IS NULL
+            "#,
+            ids
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
 }
 

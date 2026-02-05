@@ -23,7 +23,8 @@ use crate::interface::http::handlers::settings_handler::{
     get_setting as get_setting_handler, list_settings, update_setting as update_setting_handler,
 };
 use crate::interface::http::handlers::banner_handler::{
-    get_banner_by_key, list_active_banners,
+    bulk_delete_banners, create_banner, create_banner_item, delete_banner, delete_banner_item,
+    get_banner_by_key, list_active_banners, update_banner, update_banner_item,
 };
 use crate::interface::http::handlers::user_profile_handler::{
     get_me_profile, update_me_profile,
@@ -32,7 +33,9 @@ use crate::interface::http::handlers::category_handler::{
     bulk_delete_categories, create_category, delete_category, get_category, list_categories,
     update_category,
 };
-use crate::interface::http::handlers::tag_handler::{get_tag, list_tags};
+use crate::interface::http::handlers::tag_handler::{
+    bulk_delete_tags, create_tag, delete_tag, get_tag, list_tags, update_tag,
+};
 use crate::interface::http::handlers::post_handler::{
     bulk_delete_posts, create_post, delete_post, get_post_by_slug, list_posts, update_post,
 };
@@ -41,7 +44,7 @@ use crate::interface::http::handlers::audit_log_handler::list_audit_logs;
 use crate::interface::http::middleware::auth::auth_middleware;
 use axum::{
     Router, middleware,
-    routing::{get, post},
+    routing::{get, patch, post},
 };
 use std::sync::Arc;
 
@@ -160,7 +163,13 @@ async fn main() {
                 )
                 // Banners
                 .route("/banners/active", get(list_active_banners))
+                .route("/banners", post(create_banner))
                 .route("/banners/key/:key", get(get_banner_by_key))
+                .route("/banners/:id", patch(update_banner).delete(delete_banner))
+                .route("/banners/bulk-delete", post(bulk_delete_banners))
+                // Banner Items
+                .route("/banner-items", post(create_banner_item))
+                .route("/banner-items/:id", patch(update_banner_item).delete(delete_banner_item))
                 // Categories & Tags & Posts (blog / content)
                 .route("/categories", get(list_categories).post(create_category))
                 .route(
@@ -168,8 +177,12 @@ async fn main() {
                     get(get_category).patch(update_category).delete(delete_category),
                 )
                 .route("/categories/bulk-delete", post(bulk_delete_categories))
-                .route("/tags", get(list_tags))
-                .route("/tags/:slug", get(get_tag))
+                .route("/tags", get(list_tags).post(create_tag))
+                .route(
+                    "/tags/:slug",
+                    get(get_tag).patch(update_tag).delete(delete_tag),
+                )
+                .route("/tags/bulk-delete", post(bulk_delete_tags))
                 .route("/posts", get(list_posts).post(create_post))
                 .route(
                     "/posts/:slug",
