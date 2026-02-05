@@ -3,6 +3,10 @@ use sqlx::{Pool, Postgres};
 
 use crate::domain::entities::media::{Media, NewMedia};
 use crate::domain::repositories::media_repository::MediaRepository;
+use crate::shared::utils::query::{
+    build_query, build_query_with_seed, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo,
+    FieldType, ListParams, PaginatedResult, SortDirection,
+};
 
 pub struct PgMediaRepository {
     pool: Pool<Postgres>,
@@ -55,5 +59,85 @@ impl MediaRepository for PgMediaRepository {
         .fetch_all(&self.pool)
         .await
         .map_err(|e| e.to_string())
+    }
+
+    async fn find_paginated(
+        &self,
+        params: &ListParams,
+        user_filter: Option<Uuid>,
+    ) -> Result<PaginatedResult<Media>, String> {
+        let allowed_fields = [
+            FieldInfo {
+                name: "media_type",
+                field_type: FieldType::Text,
+            },
+            FieldInfo {
+                name: "file_path",
+                field_type: FieldType::Text,
+            },
+            FieldInfo {
+                name: "created_at",
+                field_type: FieldType::Timestamp,
+            },
+        ];
+
+        let base_sql =
+            "SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE deleted_at IS NULL";
+
+        let built = if let Some(uid) = user_filter {
+            build_query_with_seed(
+                base_sql,
+                params,
+                &allowed_fields,
+                "created_at",
+                SortDirection::Desc,
+                &["media_type", "file_path"],
+                &[("user_id = $1", BindValue::Uuid(uid))],
+                1,
+            )?
+        } else {
+            build_query(
+                base_sql,
+                params,
+                &allowed_fields,
+                "created_at",
+                SortDirection::Desc,
+                &["media_type", "file_path"],
+            )?
+        };
+
+        let mut query = sqlx::query_as::<_, Media>(&built.sql);
+        for b in built.binds {
+            query = match b {
+                BindValue::Text(v) => query.bind(v),
+                BindValue::Timestamp(v) => query.bind(v),
+                BindValue::Uuid(v) => query.bind(v),
+                BindValue::I64(v) => query.bind(v),
+            };
+        }
+
+        let items = query.fetch_all(&self.pool).await.map_err(|e| e.to_string())?;
+        let next_cursor = if items.len() as i64 == built.limit {
+            if let Some(last) = items.last() {
+                match built.sort_field {
+                    "media_type" => Some(encode_cursor_text(&last.media_type, last.id)),
+                    "file_path" => Some(encode_cursor_text(&last.file_path, last.id)),
+                    "created_at" => last
+                        .created_at
+                        .map(|dt| encode_cursor_ts(dt, last.id)),
+                    _ => None,
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        Ok(PaginatedResult {
+            items,
+            next_cursor,
+            limit: built.limit,
+        })
     }
 }

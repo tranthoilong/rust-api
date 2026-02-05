@@ -1,7 +1,8 @@
 use axum::{
-    extract::{Extension, Multipart, Path as AxumPath, State},
+    extract::{Extension, Multipart, Path as AxumPath, Query, State},
     http::StatusCode,
     response::Json,
+    response::IntoResponse,
 };
 use std::path::Path;
 use std::sync::Arc;
@@ -11,7 +12,9 @@ use crate::{
     app::state::AppState,
     application::media::{create_media::CreateMediaUseCase, get_media::GetMediaUseCase},
     domain::entities::media::{Media, NewMedia},
+    interface::http::response::ApiResponse,
     shared::utils::jwt::Claims,
+    shared::utils::query::ListParams,
 };
 
 const UPLOAD_ROOT: &str = "uploads";
@@ -121,11 +124,33 @@ pub async fn get_media(
 pub async fn get_user_media(
     State(state): State<Arc<AppState>>,
     AxumPath(user_id): AxumPath<uuid::Uuid>,
-) -> Result<Json<Vec<Media>>, (StatusCode, String)> {
+    Query(params): Query<ListParams>,
+) -> impl IntoResponse {
     let use_case = GetMediaUseCase::new(state.media_repo.clone());
 
-    match use_case.get_by_user_id(user_id).await {
-        Ok(media_list) => Ok(Json(media_list)),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e)),
+    match use_case.get_by_user_paginated(user_id, &params).await {
+        Ok(result) => {
+            let data = result
+                .items
+                .into_iter()
+                .map(|m| serde_json::json!(m))
+                .collect::<Vec<_>>();
+            let pagination = serde_json::json!({
+                "next_cursor": result.next_cursor,
+                "limit": result.limit,
+                "sort_by": params.sort_by.clone(),
+                "fields": params.fields.clone(),
+                "search": params.search.clone()
+            });
+            ApiResponse::success_with_pagination(data, pagination, None).into_response()
+        }
+        Err(e) => ApiResponse::<()>::error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL_SERVER_ERROR".to_string(),
+            e,
+            None,
+            None,
+        )
+        .into_response(),
     }
 }

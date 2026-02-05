@@ -1,9 +1,10 @@
 use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct Media {
     pub id: Uuid,
     pub user_id: Uuid,

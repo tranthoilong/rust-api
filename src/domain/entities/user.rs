@@ -1,6 +1,6 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use sqlx::Type;
+use sqlx::{FromRow, Type};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[sqlx(type_name = "user_status", rename_all = "lowercase")]
@@ -12,7 +12,7 @@ pub enum UserStatus {
 
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct User {
     pub id: Uuid,
     pub name: String,

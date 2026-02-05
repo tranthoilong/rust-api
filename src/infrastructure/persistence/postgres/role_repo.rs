@@ -3,6 +3,10 @@ use sqlx::{Pool, Postgres};
 
 use crate::domain::entities::role::{NewRole, Role, UpdateRole};
 use crate::domain::repositories::role_repository::RoleRepository;
+use crate::shared::utils::query::{
+    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType, ListParams,
+    PaginatedResult, SortDirection,
+};
 
 pub struct PgRoleRepository {
     pool: Pool<Postgres>,
@@ -26,6 +30,62 @@ impl RoleRepository for PgRoleRepository {
         .fetch_all(&self.pool)
         .await
         .map_err(|e| e.to_string())
+    }
+
+    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<Role>, String> {
+        let allowed_fields = [
+            FieldInfo {
+                name: "name",
+                field_type: FieldType::Text,
+            },
+            FieldInfo {
+                name: "created_at",
+                field_type: FieldType::Timestamp,
+            },
+        ];
+
+        let base_sql = r#"SELECT id, name, created_at, updated_at, deleted_at FROM roles"#;
+        let built = build_query(
+            base_sql,
+            params,
+            &allowed_fields,
+            "created_at",
+            SortDirection::Desc,
+            &["name"],
+        )?;
+
+        let mut query = sqlx::query_as::<_, Role>(&built.sql);
+        for b in built.binds {
+            query = match b {
+                BindValue::Text(v) => query.bind(v),
+                BindValue::Timestamp(v) => query.bind(v),
+                BindValue::Uuid(v) => query.bind(v),
+                BindValue::I64(v) => query.bind(v),
+            };
+        }
+
+        let items = query.fetch_all(&self.pool).await.map_err(|e| e.to_string())?;
+        let next_cursor = if items.len() as i64 == built.limit {
+            if let Some(last) = items.last() {
+                match built.sort_field {
+                    "name" => Some(encode_cursor_text(&last.name, last.id)),
+                    "created_at" => last
+                        .created_at
+                        .map(|dt| encode_cursor_ts(dt, last.id)),
+                    _ => None,
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        Ok(PaginatedResult {
+            items,
+            next_cursor,
+            limit: built.limit,
+        })
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Role>, String> {

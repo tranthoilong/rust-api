@@ -25,5 +25,5 @@ Authorization: Bearer {{authToken}}
 
 ### Lấy Media của User
 @userId = 1
-GET {{host}}/users/{{userId}}/media
+GET {{host}}/users/{{userId}}/media?search=image&fields=media_type,file_path&sort_by=created_at:desc&limit=10
 Authorization: Bearer {{authToken}}

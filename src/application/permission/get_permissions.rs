@@ -1,5 +1,6 @@
 use crate::domain::entities::permission::Permission;
 use crate::domain::repositories::permission_repository::PermissionRepository;
+use crate::shared::utils::query::{ListParams, PaginatedResult};
 use std::sync::Arc;
 
 pub struct GetPermissionsUseCase {
@@ -11,7 +12,10 @@ impl GetPermissionsUseCase {
         Self { repo }
     }
 
-    pub async fn execute(&self) -> Result<Vec<Permission>, String> {
-        self.repo.find_all().await
+    pub async fn execute(
+        &self,
+        params: &ListParams,
+    ) -> Result<PaginatedResult<Permission>, String> {
+        self.repo.find_paginated(params).await
     }
 }

@@ -53,6 +53,25 @@ impl<T: Serialize> ApiResponse<T> {
         )
     }
 
+    pub fn success_with_pagination(
+        data: T,
+        pagination: Value,
+        message: Option<String>,
+    ) -> (StatusCode, Json<Self>) {
+        (
+            StatusCode::OK,
+            Json(Self {
+                success: true,
+                message: message.unwrap_or_else(|| "Request successful".to_string()),
+                data: Some(data),
+                error: None,
+                pagination: Some(pagination),
+                timestamp: Utc::now().to_rfc3339(),
+                path: None,
+            }),
+        )
+    }
+
     pub fn created(data: T, message: Option<String>) -> (StatusCode, Json<Self>) {
         (
             StatusCode::CREATED,

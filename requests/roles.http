@@ -7,7 +7,7 @@
 # ==========================================
 
 ### Lấy danh sách Roles
-GET {{host}}/roles
+GET {{host}}/roles?search=admin&fields=name&sort_by=created_at:desc&limit=10
 Authorization: Bearer {{authToken}}
 
 ### Tạo Role mới

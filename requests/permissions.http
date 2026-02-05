@@ -7,7 +7,7 @@
 # ==========================================
 
 ### Lấy danh sách Permissions
-GET {{host}}/permissions
+GET {{host}}/permissions?search=user&fields=name&sort_by=created_at:desc&limit=10
 Authorization: Bearer {{authToken}}
 
 ### Tạo Permission mới

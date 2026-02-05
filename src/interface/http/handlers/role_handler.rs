@@ -1,8 +1,8 @@
 use axum::{
-    Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
+    Json,
 };
 use std::sync::Arc;
 
@@ -18,13 +18,33 @@ use crate::application::role::{
 };
 use crate::domain::entities::role::{NewRole, UpdateRole};
 use crate::interface::http::response::ApiResponse;
+use crate::shared::utils::query::ListParams;
 
-pub async fn get_roles(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn get_roles(
+    State(state): State<Arc<AppState>>,
+    Query(params): Query<ListParams>,
+) -> impl IntoResponse {
     let usecase = GetRolesUseCase::new(state.role_repo.clone());
-    match usecase.execute().await {
-        Ok(roles) => {
-            let data = roles.into_iter().map(|r| serde_json::json!(r)).collect();
-            ApiResponse::<Vec<serde_json::Value>>::success(data, None).into_response()
+    match usecase.execute(&params).await {
+        Ok(result) => {
+            let data = result
+                .items
+                .into_iter()
+                .map(|r| serde_json::json!(r))
+                .collect();
+            let pagination = serde_json::json!({
+                "next_cursor": result.next_cursor,
+                "limit": result.limit,
+                "sort_by": params.sort_by.clone(),
+                "fields": params.fields.clone(),
+                "search": params.search.clone()
+            });
+            ApiResponse::<Vec<serde_json::Value>>::success_with_pagination(
+                data,
+                pagination,
+                None,
+            )
+            .into_response()
         }
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,

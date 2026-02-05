@@ -1,11 +1,14 @@
 use crate::domain::entities::user::{NewUser, UpdateUser, User};
+use crate::shared::utils::query::{ListParams, PaginatedResult};
 use async_trait::async_trait;
 
 use uuid::Uuid;
 
 #[async_trait]
 pub trait UserRepository: Send + Sync {
+    #[allow(dead_code)]
     async fn find_all(&self) -> Result<Vec<User>, String>;
+    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<User>, String>;
     async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, String>;
     async fn find_by_email(&self, email: &str) -> Result<Option<User>, String>;
 
@@ -18,6 +21,10 @@ pub trait UserRepository: Send + Sync {
 impl<T: UserRepository + ?Sized + Send + Sync> UserRepository for std::sync::Arc<T> {
     async fn find_all(&self) -> Result<Vec<User>, String> {
         (**self).find_all().await
+    }
+
+    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<User>, String> {
+        (**self).find_paginated(params).await
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, String> {

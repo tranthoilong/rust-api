@@ -1,8 +1,8 @@
 use axum::{
-    Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
+    Json,
 };
 use std::sync::Arc;
 
@@ -14,16 +14,33 @@ use crate::application::permission::{
 };
 use crate::domain::entities::permission::{NewPermission, UpdatePermission};
 use crate::interface::http::response::ApiResponse;
+use crate::shared::utils::query::ListParams;
 
-pub async fn get_permissions(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn get_permissions(
+    State(state): State<Arc<AppState>>,
+    Query(params): Query<ListParams>,
+) -> impl IntoResponse {
     let usecase = GetPermissionsUseCase::new(state.permission_repo.clone());
-    match usecase.execute().await {
-        Ok(permissions) => {
-            let data = permissions
+    match usecase.execute(&params).await {
+        Ok(result) => {
+            let data = result
+                .items
                 .into_iter()
                 .map(|p| serde_json::json!(p))
                 .collect();
-            ApiResponse::<Vec<serde_json::Value>>::success(data, None).into_response()
+            let pagination = serde_json::json!({
+                "next_cursor": result.next_cursor,
+                "limit": result.limit,
+                "sort_by": params.sort_by.clone(),
+                "fields": params.fields.clone(),
+                "search": params.search.clone()
+            });
+            ApiResponse::<Vec<serde_json::Value>>::success_with_pagination(
+                data,
+                pagination,
+                None,
+            )
+            .into_response()
         }
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,
