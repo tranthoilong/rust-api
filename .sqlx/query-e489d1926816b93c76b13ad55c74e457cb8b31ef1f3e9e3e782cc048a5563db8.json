@@ -1,0 +1,90 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE users\n            SET name = COALESCE($1, name),\n                email = COALESCE($2, email),\n                password = COALESCE($3, password),\n                status = COALESCE($4, status),\n                updated_at = NOW()\n            WHERE id = $5\n            RETURNING id, name, email, password, status as \"status: UserStatus\", created_at, updated_at, deleted_at\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "password",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status: UserStatus",
+        "type_info": {
+          "Custom": {
+            "name": "user_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "deleted"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "user_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "deleted"
+              ]
+            }
+          }
+        },
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "e489d1926816b93c76b13ad55c74e457cb8b31ef1f3e9e3e782cc048a5563db8"
+}

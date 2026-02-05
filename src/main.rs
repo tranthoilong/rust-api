@@ -62,6 +62,7 @@ async fn main() {
     });
 
     let app = Router::new()
+        .route("/", get(|| async { "Rust API is running!" }))
         .nest(
             prefix_api,
             Router::new()

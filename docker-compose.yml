@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: rust_api_app
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - PORT=${PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: rust_api_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=rust
+      - POSTGRES_PASSWORD=rust2026
+      - POSTGRES_DB=rust
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./init_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql
+    networks:
+      - app_network
+
+  redis:
+    image: redis:alpine
+    container_name: rust_api_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: rust_api_jenkins
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  jenkins_home:
