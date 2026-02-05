@@ -206,8 +206,8 @@ pub fn build_query_with_seed(
         )
     };
 
-    // cursor
-    if let Some(cursor) = params.cursor.as_ref() {
+    // cursor (bỏ qua nếu chuỗi rỗng)
+    if let Some(cursor) = params.cursor.as_ref().filter(|s| !s.is_empty()) {
         let decoded = decode_cursor(cursor)?;
         match sort_field.field_type {
             FieldType::Text => {

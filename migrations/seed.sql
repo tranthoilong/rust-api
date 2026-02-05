@@ -33,9 +33,13 @@ VALUES
   ('media:read')
 ON CONFLICT (name) DO NOTHING;
 
--- Seed admin user (password: 123@Long!!)
+-- Seed users (password mặc định: 123@Long!!)
 INSERT INTO users (name, email, password)
-VALUES ('Long Devlor', 'longdevlor@gmail.com', '$2b$12$26ee7ST00bNgEZwcb9OziOMZzA8hcd/VvBwU48i/e6PcxsHenClDC')
+VALUES
+  ('Long Devlor', 'longdevlor@gmail.com', '$2b$12$26ee7ST00bNgEZwcb9OziOMZzA8hcd/VvBwU48i/e6PcxsHenClDC'),
+  ('John Doe', 'john@example.com', '$2b$12$26ee7ST00bNgEZwcb9OziOMZzA8hcd/VvBwU48i/e6PcxsHenClDC'),
+  ('Jane Smith', 'jane@example.com', '$2b$12$26ee7ST00bNgEZwcb9OziOMZzA8hcd/VvBwU48i/e6PcxsHenClDC'),
+  ('Demo User', 'demo@example.com', '$2b$12$26ee7ST00bNgEZwcb9OziOMZzA8hcd/VvBwU48i/e6PcxsHenClDC')
 ON CONFLICT (email) DO NOTHING;
 
 -- Assign admin role to the admin user
@@ -44,6 +48,34 @@ SELECT u.id, r.id
 FROM users u
 JOIN roles r ON r.name = 'admin'
 WHERE u.email = 'longdevlor@gmail.com'
+  AND NOT EXISTS (
+    SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id
+  );
+
+-- Assign user role to sample users
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u
+JOIN roles r ON r.name = 'user'
+WHERE u.email = 'john@example.com'
+  AND NOT EXISTS (
+    SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id
+  );
+
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u
+JOIN roles r ON r.name = 'user'
+WHERE u.email = 'jane@example.com'
+  AND NOT EXISTS (
+    SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id
+  );
+
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u
+JOIN roles r ON r.name = 'user'
+WHERE u.email = 'demo@example.com'
   AND NOT EXISTS (
     SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id
   );

@@ -1,13 +1,13 @@
 @host = http://localhost:4000/api/v1
 @contentType = application/json
-@authToken = your_token_here
+@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTljMmNjYS04MTg3LTc4NDItOTNjZS1mMzI2YWJkOGUzNmIiLCJpYXQiOjE3NzAyODY0MDEsImV4cCI6MTc3MDI5MDAwMX0.kj50Oc40iMsEnUB7-dUICxEjkscDDguT-qbwnN5A6CI
 
 # ==========================================
 # PERMISSION REQUESTS
 # ==========================================
 
 ### Lấy danh sách Permissions
-GET {{host}}/permissions?search=user&fields=name&sort_by=created_at:desc&limit=10
+GET {{host}}/permissions?search=&fields=name&sort_by=created_at:desc&limit=5&cursor=
 Authorization: Bearer {{authToken}}
 
 ### Tạo Permission mới
