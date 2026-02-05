@@ -9,9 +9,19 @@ pub struct Claims {
     pub exp: usize,
 }
 
-pub fn create_jwt(user_id: &str, secret: &[u8]) -> Result<String, String> {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TokenWithExpiration {
+    pub token: String,
+    pub expires_at: i64,
+}
+
+pub fn create_jwt(
+    user_id: &str,
+    secret: &[u8],
+    duration: Duration,
+) -> Result<TokenWithExpiration, String> {
     let expiration = Utc::now()
-        .checked_add_signed(Duration::hours(24))
+        .checked_add_signed(duration)
         .expect("valid timestamp")
         .timestamp();
 
@@ -21,12 +31,17 @@ pub fn create_jwt(user_id: &str, secret: &[u8]) -> Result<String, String> {
         exp: expiration as usize,
     };
 
-    encode(
+    let token = encode(
         &Header::default(),
         &claims,
         &EncodingKey::from_secret(secret),
     )
-    .map_err(|e| e.to_string())
+    .map_err(|e| e.to_string())?;
+
+    Ok(TokenWithExpiration {
+        token,
+        expires_at: expiration,
+    })
 }
 
 pub fn verify_jwt(token: &str, secret: &[u8]) -> Result<Claims, String> {

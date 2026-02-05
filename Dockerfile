@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y libssl-dev ca-certificates && rm -rf /v
 
 COPY --from=builder /usr/src/app/target/release/rust_api .
 COPY --from=builder /usr/src/app/.env.example .env
-COPY --from=builder /usr/src/app/init_schema.sql . 
+COPY --from=builder /usr/src/app/migrations ./migrations 
 
 # Expose port
 EXPOSE 4000

@@ -1,0 +1,50 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = your_token_here
+
+# ==========================================
+# USER REQUESTS
+# ==========================================
+
+### Lấy danh sách Users
+GET {{host}}/users
+Authorization: Bearer {{authToken}}
+
+### Tạo User mới
+POST {{host}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123",
+    "status": "active"
+}
+
+### Lấy chi tiết User
+@userId = 1
+GET {{host}}/users/{{userId}}
+Authorization: Bearer {{authToken}}
+
+### Cập nhật User
+PATCH {{host}}/users/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "username": "updated_user"
+}
+
+### Xóa User
+DELETE {{host}}/users/{{userId}}
+Authorization: Bearer {{authToken}}
+
+### Gán Role cho User
+@roleId = 1
+POST {{host}}/users/{{userId}}/roles/{{roleId}}
+Authorization: Bearer {{authToken}}
+
+### Gỡ Role khỏi User
+DELETE {{host}}/users/{{userId}}/roles/{{roleId}}
+Authorization: Bearer {{authToken}}

@@ -1,0 +1,52 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMiIsImlhdCI6MTc3MDI3NDk2NSwiZXhwIjoxNzcwMjc4NTY1fQ.iJ4hZDg6iP04NcD8JOf5Mxb0jwQfsBt6v-Ls-FQXVP0
+
+# ==========================================
+# ROLE REQUESTS
+# ==========================================
+
+### Lấy danh sách Roles
+GET {{host}}/roles
+Authorization: Bearer {{authToken}}
+
+### Tạo Role mới
+POST {{host}}/roles
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "Editor",
+    "description": "Can edit content"
+}
+
+### Lấy chi tiết Role
+@roleId = 1
+GET {{host}}/roles/{{roleId}}
+Authorization: Bearer {{authToken}}
+
+### Cập nhật Role
+PATCH {{host}}/roles/{{roleId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "description": "Updated description"
+}
+
+### Xóa Role
+DELETE {{host}}/roles/{{roleId}}
+Authorization: Bearer {{authToken}}
+
+### Lấy Permissions của Role
+GET {{host}}/roles/{{roleId}}/permissions
+Authorization: Bearer {{authToken}}
+
+### Gán Permission cho Role
+@permissionId = 1
+POST {{host}}/roles/{{roleId}}/permissions/{{permissionId}}
+Authorization: Bearer {{authToken}}
+
+### Gỡ Permission khỏi Role
+DELETE {{host}}/roles/{{roleId}}/permissions/{{permissionId}}
+Authorization: Bearer {{authToken}}

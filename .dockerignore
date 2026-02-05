@@ -1,0 +1,5 @@
+target/
+.git/
+postgres_data/
+.env
+.DS_Store

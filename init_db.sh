@@ -13,11 +13,21 @@ fi
 
 echo "Initializing database..."
 
-# Run psql using the DATABASE_URL
-if command -v psql &> /dev/null; then
-    psql "$DATABASE_URL" -f init_schema.sql
-    echo "Database initialized successfully!"
+# Run migrations using sqlx
+if command -v sqlx &> /dev/null; then
+    sqlx migrate run
+    echo "Database initialized successfully (via sqlx)!"
+elif command -v psql &> /dev/null; then
+    # Fallback to psql if sqlx is not available - finding latest migration
+    LATEST_MIGRATION=$(ls migrations/*.sql | sort | tail -n 1)
+    if [ -n "$LATEST_MIGRATION" ]; then
+        psql "$DATABASE_URL" -f "$LATEST_MIGRATION"
+        echo "Database initialized successfully (via psql using $LATEST_MIGRATION)!"
+    else
+        echo "No migration files found in migrations/"
+        exit 1
+    fi
 else
-    echo "Error: psql is not installed or not in PATH."
+    echo "Error: Neither sqlx nor psql found."
     exit 1
 fi

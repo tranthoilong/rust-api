@@ -1,0 +1,33 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+
+# ==========================================
+# AUTHENTICATION REQUESTS
+# ==========================================
+
+### Register (Đăng ký)
+POST {{host}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "name": "Long Devlor",
+    "email": "longdevlor@gmail.com",
+    "password": "123@Long!!"
+}
+
+### Login (Lấy Token)
+# @name login
+POST {{host}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "longdevlor@gmail.com",
+    "password": "123@Long!!"
+}
+
+### (Optional) Kiểm tra Health Check
+GET http://localhost:4000/
+
+### Get User Profile (Me)
+GET {{host}}/auth/me
+Authorization: Bearer {{login.response.body.data.access_token}}

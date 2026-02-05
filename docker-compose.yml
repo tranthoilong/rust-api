@@ -8,7 +8,7 @@ services:
       - "${PORT}:${PORT}"
     environment:
       - PORT=${PORT}
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgres://rust:rust2026@postgres:5432/rust
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - postgres
@@ -27,7 +27,7 @@ services:
       - POSTGRES_DB=rust
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
-      - ./init_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql
+      - ./migrations:/docker-entrypoint-initdb.d
     networks:
       - app_network
 

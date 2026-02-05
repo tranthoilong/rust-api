@@ -3,7 +3,7 @@ use crate::infrastructure::persistence::postgres::{
     media_repo::PgMediaRepository, permission_repo::PgPermissionRepository,
     role_repo::PgRoleRepository, user_repo::PgUserRepository,
 };
-use crate::interface::http::handlers::auth_handler::login;
+use crate::interface::http::handlers::auth_handler::{login, me, register};
 use crate::interface::http::handlers::media_handler::{get_media, get_user_media, upload_media};
 use crate::interface::http::handlers::permission_handler::{
     create_permission, delete_permission, get_permission, get_permissions, update_permission,
@@ -95,6 +95,7 @@ async fn main() {
                 .route("/media", post(upload_media))
                 .route("/media/:id", get(get_media))
                 .route("/users/:user_id/media", get(get_user_media))
+                .route("/auth/me", get(me))
                 .nest(
                     "/admin",
                     Router::new()
@@ -107,6 +108,7 @@ async fn main() {
                 .route_layer(middleware::from_fn(auth_middleware)),
         )
         .route(&format!("{}/auth/login", prefix_api), post(login))
+        .route(&format!("{}/auth/register", prefix_api), post(register))
         .with_state(state);
 
     let port = std::env::var("PORT").unwrap_or("4000".to_string());

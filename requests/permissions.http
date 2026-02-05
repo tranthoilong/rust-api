@@ -1,0 +1,41 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = your_token_here
+
+# ==========================================
+# PERMISSION REQUESTS
+# ==========================================
+
+### Lấy danh sách Permissions
+GET {{host}}/permissions
+Authorization: Bearer {{authToken}}
+
+### Tạo Permission mới
+POST {{host}}/permissions
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "article:create",
+    "description": "Can create articles",
+    "resource": "article",
+    "action": "create"
+}
+
+### Lấy chi tiết Permission
+@permissionId = 1
+GET {{host}}/permissions/{{permissionId}}
+Authorization: Bearer {{authToken}}
+
+### Cập nhật Permission
+PATCH {{host}}/permissions/{{permissionId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "description": "Updated permission description"
+}
+
+### Xóa Permission
+DELETE {{host}}/permissions/{{permissionId}}
+Authorization: Bearer {{authToken}}
