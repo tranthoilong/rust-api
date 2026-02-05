@@ -1,6 +1,6 @@
 @host = http://localhost:4000/api/v1
 @contentType = application/json
-@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTljMmNjYS04MTg3LTc4NDItOTNjZS1mMzI2YWJkOGUzNmIiLCJpYXQiOjE3NzAyODY0MDEsImV4cCI6MTc3MDI5MDAwMX0.kj50Oc40iMsEnUB7-dUICxEjkscDDguT-qbwnN5A6CI
+@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTljMmNjYS04MTg3LTc4NDItOTNjZS1mMzI2YWJkOGUzNmIiLCJpYXQiOjE3NzAzMDE4MzEsImV4cCI6MTc3MDMwNTQzMX0.9zdltvmyB2FFqazGBdxtetKs4FnJh-8nVekJ5HANals
 
 # ==========================================
 # PERMISSION REQUESTS

@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use sqlx::{Pool, Postgres};
 
 use crate::domain::entities::user::{NewUser, UpdateUser, User, UserStatus};
-use crate::domain::repositories::user_repository::UserRepository;
+use crate::domain::repositories::user_repository::{UserRepository, UserSearchFilter};
 use crate::shared::utils::query::{
-    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType, ListParams,
-    PaginatedResult, SortDirection,
+    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType,
+    ListParams, PaginatedResult, SortDirection,
 };
 
 pub struct PgUserRepository {
@@ -32,7 +32,13 @@ impl UserRepository for PgUserRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<User>, String> {
+    async fn search(
+        &self,
+        filter: &UserSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
+    ) -> Result<PaginatedResult<User>, String> {
         let allowed_fields = [
             FieldInfo {
                 name: "name",
@@ -49,9 +55,18 @@ impl UserRepository for PgUserRepository {
         ];
 
         let base_sql = r#"SELECT id, name, email, password, status as "status: UserStatus", created_at, updated_at, deleted_at FROM users"#;
+
+        let params = ListParams {
+            search: filter.search.clone(),
+            fields: None,
+            sort_by,
+            cursor,
+            limit: Some(limit),
+        };
+
         let built = build_query(
             base_sql,
-            params,
+            &params,
             &allowed_fields,
             "created_at",
             SortDirection::Desc,

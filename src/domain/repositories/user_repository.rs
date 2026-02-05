@@ -1,14 +1,25 @@
 use crate::domain::entities::user::{NewUser, UpdateUser, User};
-use crate::shared::utils::query::{ListParams, PaginatedResult};
+use crate::shared::utils::query::PaginatedResult;
 use async_trait::async_trait;
 
 use uuid::Uuid;
+
+#[derive(Debug, Clone)]
+pub struct UserSearchFilter {
+    pub search: Option<String>,
+}
 
 #[async_trait]
 pub trait UserRepository: Send + Sync {
     #[allow(dead_code)]
     async fn find_all(&self) -> Result<Vec<User>, String>;
-    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<User>, String>;
+    async fn search(
+        &self,
+        filter: &UserSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
+    ) -> Result<PaginatedResult<User>, String>;
     async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, String>;
     async fn find_by_email(&self, email: &str) -> Result<Option<User>, String>;
 
@@ -23,8 +34,14 @@ impl<T: UserRepository + ?Sized + Send + Sync> UserRepository for std::sync::Arc
         (**self).find_all().await
     }
 
-    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<User>, String> {
-        (**self).find_paginated(params).await
+    async fn search(
+        &self,
+        filter: &UserSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
+    ) -> Result<PaginatedResult<User>, String> {
+        (**self).search(filter, sort_by, cursor, limit).await
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, String> {

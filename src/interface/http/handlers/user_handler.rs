@@ -16,7 +16,7 @@ use crate::application::user::{
 };
 use crate::domain::entities::user::{NewUser, UpdateUser};
 use crate::interface::http::response::ApiResponse;
-use crate::shared::utils::query::ListParams;
+use crate::application::common::list_params::ListParams;
 use uuid::Uuid;
 
 pub async fn get_users(

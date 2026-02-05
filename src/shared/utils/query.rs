@@ -1,16 +1,9 @@
 use base64::{engine::general_purpose, Engine as _};
 use chrono::{DateTime, NaiveDateTime, Utc};
-use serde::Deserialize;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Deserialize, Default)]
-pub struct ListParams {
-    pub search: Option<String>,
-    pub fields: Option<String>,
-    pub sort_by: Option<String>,
-    pub cursor: Option<String>,
-    pub limit: Option<i64>,
-}
+// Re-export DTOs từ application để không phá vỡ các import hiện có
+pub use crate::application::common::list_params::{ListParams, PaginatedResult};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SortDirection {
@@ -62,13 +55,6 @@ pub struct BuiltQuery {
     pub sort_field: &'static str,
     #[allow(dead_code)]
     pub sort_dir: SortDirection,
-}
-
-#[derive(Debug, Clone)]
-pub struct PaginatedResult<T> {
-    pub items: Vec<T>,
-    pub next_cursor: Option<String>,
-    pub limit: i64,
 }
 
 #[derive(Debug, Clone)]

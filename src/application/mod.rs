@@ -1,3 +1,4 @@
+pub mod common;
 pub mod media;
 pub mod permission;
 pub mod role;
