@@ -30,7 +30,8 @@ pub async fn require_admin_role(
     // 2. Check DB xem user có role admin không
     match state.role_repo.find_by_user_id(user_id).await {
         Ok(roles) => {
-            let is_admin = roles.iter().any(|r| r.name == "Admin"); // Giả sử tên role là "Admin"
+            // Role seed đang dùng tên thường "admin"
+            let is_admin = roles.iter().any(|r| r.name.eq_ignore_ascii_case("admin"));
 
             if is_admin {
                 Ok(next.run(req).await)

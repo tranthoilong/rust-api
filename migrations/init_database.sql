@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS roles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT NULL
 );
+-- Đảm bảo tên role duy nhất để hỗ trợ ON CONFLICT
+ALTER TABLE roles ADD CONSTRAINT roles_name_key UNIQUE (name);
 
 CREATE TABLE IF NOT EXISTS user_roles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
@@ -71,6 +73,8 @@ CREATE TABLE IF NOT EXISTS permissions (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT NULL
 );
+-- Đảm bảo tên permission duy nhất để hỗ trợ ON CONFLICT
+ALTER TABLE permissions ADD CONSTRAINT permissions_name_key UNIQUE (name);
 
 CREATE TABLE IF NOT EXISTS role_permissions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
