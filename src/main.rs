@@ -1,17 +1,19 @@
 use crate::app::state::AppState;
 use crate::infrastructure::persistence::postgres::{
-    permission_repo::PgPermissionRepository, role_repo::PgRoleRepository,
-    user_repo::PgUserRepository,
+    media_repo::PgMediaRepository, permission_repo::PgPermissionRepository,
+    role_repo::PgRoleRepository, user_repo::PgUserRepository,
 };
 use crate::interface::http::handlers::auth_handler::login;
+use crate::interface::http::handlers::media_handler::{get_media, get_user_media, upload_media};
 use crate::interface::http::handlers::permission_handler::{
     create_permission, delete_permission, get_permission, get_permissions, update_permission,
 };
 use crate::interface::http::handlers::role_handler::{
-    create_role, delete_role, get_role, get_roles, update_role,
+    assign_permission, create_role, delete_role, get_role, get_role_permissions, get_roles,
+    revoke_permission, update_role,
 };
 use crate::interface::http::handlers::user_handler::{
-    create_user, delete_user, get_user, get_users, update_user,
+    assign_role, create_user, delete_user, get_user, get_users, revoke_role, update_user,
 };
 use crate::interface::http::middleware::auth::auth_middleware;
 use axum::{
@@ -46,13 +48,17 @@ async fn main() {
     let role_repo = Arc::new(PgRoleRepository::new(pool.clone()))
         as Arc<dyn crate::domain::repositories::role_repository::RoleRepository>;
 
-    let permission_repo = Arc::new(PgPermissionRepository::new(pool))
+    let permission_repo = Arc::new(PgPermissionRepository::new(pool.clone()))
         as Arc<dyn crate::domain::repositories::permission_repository::PermissionRepository>;
+
+    let media_repo = Arc::new(PgMediaRepository::new(pool))
+        as Arc<dyn crate::domain::repositories::media_repository::MediaRepository>;
 
     let state = Arc::new(AppState {
         user_repo,
         role_repo,
         permission_repo,
+        media_repo,
     });
 
     let app = Router::new()
@@ -64,10 +70,19 @@ async fn main() {
                     "/users/:id",
                     get(get_user).patch(update_user).delete(delete_user),
                 )
+                .route(
+                    "/users/:user_id/roles/:role_id",
+                    post(assign_role).delete(revoke_role),
+                )
                 .route("/roles", get(get_roles).post(create_role))
                 .route(
                     "/roles/:id",
                     get(get_role).patch(update_role).delete(delete_role),
+                )
+                .route("/roles/:role_id/permissions", get(get_role_permissions))
+                .route(
+                    "/roles/:role_id/permissions/:permission_id",
+                    post(assign_permission).delete(revoke_permission),
                 )
                 .route("/permissions", get(get_permissions).post(create_permission))
                 .route(
@@ -76,6 +91,9 @@ async fn main() {
                         .patch(update_permission)
                         .delete(delete_permission),
                 )
+                .route("/media", post(upload_media))
+                .route("/media/:id", get(get_media))
+                .route("/users/:user_id/media", get(get_user_media))
                 .nest(
                     "/admin",
                     Router::new()

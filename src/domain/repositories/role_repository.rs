@@ -9,6 +9,8 @@ pub trait RoleRepository: Send + Sync {
     async fn update(&self, id: i32, role: UpdateRole) -> Result<Role, String>;
     async fn delete(&self, id: i32) -> Result<(), String>;
     async fn find_by_user_id(&self, user_id: i32) -> Result<Vec<Role>, String>;
+    async fn assign_to_user(&self, user_id: i32, role_id: i32) -> Result<(), String>;
+    async fn revoke_from_user(&self, user_id: i32, role_id: i32) -> Result<(), String>;
 }
 
 #[async_trait]
@@ -35,5 +37,13 @@ impl<T: RoleRepository + ?Sized + Send + Sync> RoleRepository for std::sync::Arc
 
     async fn find_by_user_id(&self, user_id: i32) -> Result<Vec<Role>, String> {
         (**self).find_by_user_id(user_id).await
+    }
+
+    async fn assign_to_user(&self, user_id: i32, role_id: i32) -> Result<(), String> {
+        (**self).assign_to_user(user_id, role_id).await
+    }
+
+    async fn revoke_from_user(&self, user_id: i32, role_id: i32) -> Result<(), String> {
+        (**self).revoke_from_user(user_id, role_id).await
     }
 }

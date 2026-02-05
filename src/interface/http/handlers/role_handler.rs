@@ -7,6 +7,11 @@ use axum::{
 use std::sync::Arc;
 
 use crate::app::state::AppState;
+use crate::application::permission::{
+    assign_permission_to_role::AssignPermissionToRoleUseCase,
+    get_permissions_by_role::GetPermissionsByRoleUseCase,
+    revoke_permission_from_role::RevokePermissionFromRoleUseCase,
+};
 use crate::application::role::{
     create_role::CreateRoleUseCase, delete_role::DeleteRoleUseCase, get_role::GetRoleUseCase,
     get_roles::GetRolesUseCase, update_role::UpdateRoleUseCase,
@@ -104,6 +109,74 @@ pub async fn delete_role(
         Ok(_) => {
             ApiResponse::success((), Some("Role deleted successfully".to_string())).into_response()
         }
+        Err(e) => ApiResponse::<()>::error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL_SERVER_ERROR".to_string(),
+            e,
+            None,
+            None,
+        )
+        .into_response(),
+    }
+}
+
+pub async fn get_role_permissions(
+    State(state): State<Arc<AppState>>,
+    Path(role_id): Path<i32>,
+) -> impl IntoResponse {
+    let usecase = GetPermissionsByRoleUseCase::new(state.permission_repo.clone());
+    match usecase.execute(role_id).await {
+        Ok(permissions) => {
+            let data = permissions
+                .into_iter()
+                .map(|p| serde_json::json!(p))
+                .collect();
+            ApiResponse::<Vec<serde_json::Value>>::success(data, None).into_response()
+        }
+        Err(e) => ApiResponse::<()>::error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL_SERVER_ERROR".to_string(),
+            e,
+            None,
+            None,
+        )
+        .into_response(),
+    }
+}
+
+pub async fn assign_permission(
+    State(state): State<Arc<AppState>>,
+    Path((role_id, permission_id)): Path<(i32, i32)>,
+) -> impl IntoResponse {
+    let usecase = AssignPermissionToRoleUseCase::new(state.permission_repo.clone());
+    match usecase.execute(role_id, permission_id).await {
+        Ok(_) => ApiResponse::success(
+            (),
+            Some("Permission assigned to role successfully".to_string()),
+        )
+        .into_response(),
+        Err(e) => ApiResponse::<()>::error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL_SERVER_ERROR".to_string(),
+            e,
+            None,
+            None,
+        )
+        .into_response(),
+    }
+}
+
+pub async fn revoke_permission(
+    State(state): State<Arc<AppState>>,
+    Path((role_id, permission_id)): Path<(i32, i32)>,
+) -> impl IntoResponse {
+    let usecase = RevokePermissionFromRoleUseCase::new(state.permission_repo.clone());
+    match usecase.execute(role_id, permission_id).await {
+        Ok(_) => ApiResponse::success(
+            (),
+            Some("Permission revoked from role successfully".to_string()),
+        )
+        .into_response(),
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "INTERNAL_SERVER_ERROR".to_string(),

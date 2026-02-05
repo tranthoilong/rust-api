@@ -90,12 +90,62 @@ impl RoleRepository for PgRoleRepository {
             SELECT r.id, r.name, r.created_at, r.updated_at, r.deleted_at
             FROM roles r
             INNER JOIN user_roles ur ON r.id = ur.role_id
-            WHERE ur.user_id = $1 AND r.deleted_at IS NULL
+            WHERE ur.user_id = $1 AND r.deleted_at IS NULL AND ur.deleted_at IS NULL
             "#,
             user_id
         )
         .fetch_all(&self.pool)
         .await
         .map_err(|e| e.to_string())
+    }
+
+    async fn assign_to_user(&self, user_id: i32, role_id: i32) -> Result<(), String> {
+        let existing = sqlx::query!(
+            r#"SELECT id, deleted_at FROM user_roles WHERE user_id = $1 AND role_id = $2 ORDER BY created_at DESC LIMIT 1"#,
+            user_id,
+            role_id
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        if let Some(record) = existing {
+            if record.deleted_at.is_none() {
+                return Ok(()); // Already assigned
+            }
+            // Restore
+            sqlx::query!(
+                r#"UPDATE user_roles SET deleted_at = NULL, updated_at = NOW() WHERE id = $1"#,
+                record.id
+            )
+            .execute(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+        } else {
+            // Create
+            sqlx::query!(
+                r#"INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)"#,
+                user_id,
+                role_id
+            )
+            .execute(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+        }
+
+        Ok(())
+    }
+
+    async fn revoke_from_user(&self, user_id: i32, role_id: i32) -> Result<(), String> {
+        sqlx::query!(
+            r#"UPDATE user_roles SET deleted_at = NOW() WHERE user_id = $1 AND role_id = $2 AND deleted_at IS NULL"#,
+            user_id,
+            role_id
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
     }
 }

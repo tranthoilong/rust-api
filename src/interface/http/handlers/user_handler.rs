@@ -7,6 +7,9 @@ use axum::{
 use std::sync::Arc;
 
 use crate::app::state::AppState;
+use crate::application::role::{
+    assign_role_to_user::AssignRoleToUserUseCase, revoke_role_from_user::RevokeRoleFromUserUseCase,
+};
 use crate::application::user::{
     create_user::CreateUserUseCase, delete_user::DeleteUserUseCase, get_user::GetUserUseCase,
     get_users::GetUsersUseCase, update_user::UpdateUserUseCase,
@@ -104,6 +107,46 @@ pub async fn delete_user(
     match usecase.execute(id).await {
         Ok(_) => {
             ApiResponse::success((), Some("User deleted successfully".to_string())).into_response()
+        }
+        Err(e) => ApiResponse::<()>::error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL_SERVER_ERROR".to_string(),
+            e,
+            None,
+            None,
+        )
+        .into_response(),
+    }
+}
+
+pub async fn assign_role(
+    State(state): State<Arc<AppState>>,
+    Path((user_id, role_id)): Path<(i32, i32)>,
+) -> impl IntoResponse {
+    let usecase = AssignRoleToUserUseCase::new(state.role_repo.clone());
+    match usecase.execute(user_id, role_id).await {
+        Ok(_) => {
+            ApiResponse::success((), Some("Role assigned successfully".to_string())).into_response()
+        }
+        Err(e) => ApiResponse::<()>::error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL_SERVER_ERROR".to_string(),
+            e,
+            None,
+            None,
+        )
+        .into_response(),
+    }
+}
+
+pub async fn revoke_role(
+    State(state): State<Arc<AppState>>,
+    Path((user_id, role_id)): Path<(i32, i32)>,
+) -> impl IntoResponse {
+    let usecase = RevokeRoleFromUserUseCase::new(state.role_repo.clone());
+    match usecase.execute(user_id, role_id).await {
+        Ok(_) => {
+            ApiResponse::success((), Some("Role revoked successfully".to_string())).into_response()
         }
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,
