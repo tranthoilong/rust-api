@@ -1,6 +1,6 @@
+use crate::application::common::list_params::{ListParams, PaginatedResult};
 use crate::domain::entities::role::Role;
-use crate::domain::repositories::role_repository::RoleRepository;
-use crate::shared::utils::query::{ListParams, PaginatedResult};
+use crate::domain::repositories::role_repository::{RoleRepository, RoleSearchFilter};
 use std::sync::Arc;
 
 pub struct GetRolesUseCase {
@@ -13,6 +13,12 @@ impl GetRolesUseCase {
     }
 
     pub async fn execute(&self, params: &ListParams) -> Result<PaginatedResult<Role>, String> {
-        self.repo.find_paginated(params).await
+        let filter = RoleSearchFilter {
+            search: params.search.clone(),
+        };
+        let limit = params.limit.unwrap_or(20).clamp(1, 100);
+        self.repo
+            .search(&filter, params.sort_by.clone(), params.cursor.clone(), limit)
+            .await
     }
 }

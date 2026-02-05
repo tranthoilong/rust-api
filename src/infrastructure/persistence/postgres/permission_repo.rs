@@ -3,10 +3,12 @@ use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
 use crate::domain::entities::permission::{NewPermission, Permission, UpdatePermission};
-use crate::domain::repositories::permission_repository::PermissionRepository;
+use crate::domain::repositories::permission_repository::{
+    PermissionRepository, PermissionSearchFilter,
+};
 use crate::shared::utils::query::{
-    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType, ListParams,
-    PaginatedResult, SortDirection,
+    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType,
+    ListParams, PaginatedResult, SortDirection,
 };
 
 pub struct PgPermissionRepository {
@@ -31,9 +33,12 @@ impl PermissionRepository for PgPermissionRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_paginated(
+    async fn search(
         &self,
-        params: &ListParams,
+        filter: &PermissionSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
     ) -> Result<PaginatedResult<Permission>, String> {
         let allowed_fields = [
             FieldInfo {
@@ -48,9 +53,18 @@ impl PermissionRepository for PgPermissionRepository {
 
         let base_sql =
             r#"SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE deleted_at IS NULL"#;
+
+        let params = ListParams {
+            search: filter.search.clone(),
+            fields: None,
+            sort_by,
+            cursor,
+            limit: Some(limit),
+        };
+
         let built = build_query(
             base_sql,
-            params,
+            &params,
             &allowed_fields,
             "created_at",
             SortDirection::Desc,

@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use sqlx::{Pool, Postgres};
 
 use crate::domain::entities::media::{Media, NewMedia};
-use crate::domain::repositories::media_repository::MediaRepository;
+use crate::domain::repositories::media_repository::{MediaRepository, MediaSearchFilter};
 use crate::shared::utils::query::{
     build_query, build_query_with_seed, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo,
     FieldType, ListParams, PaginatedResult, SortDirection,
@@ -61,10 +61,12 @@ impl MediaRepository for PgMediaRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_paginated(
+    async fn search(
         &self,
-        params: &ListParams,
-        user_filter: Option<Uuid>,
+        filter: &MediaSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
     ) -> Result<PaginatedResult<Media>, String> {
         let allowed_fields = [
             FieldInfo {
@@ -84,10 +86,18 @@ impl MediaRepository for PgMediaRepository {
         let base_sql =
             "SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE deleted_at IS NULL";
 
-        let built = if let Some(uid) = user_filter {
+        let params = ListParams {
+            search: filter.search.clone(),
+            fields: None,
+            sort_by,
+            cursor,
+            limit: Some(limit),
+        };
+
+        let built = if let Some(uid) = filter.user_id {
             build_query_with_seed(
                 base_sql,
-                params,
+                &params,
                 &allowed_fields,
                 "created_at",
                 SortDirection::Desc,
@@ -98,7 +108,7 @@ impl MediaRepository for PgMediaRepository {
         } else {
             build_query(
                 base_sql,
-                params,
+                &params,
                 &allowed_fields,
                 "created_at",
                 SortDirection::Desc,

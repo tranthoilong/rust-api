@@ -14,7 +14,7 @@ use crate::{
     domain::entities::media::{Media, NewMedia},
     interface::http::response::ApiResponse,
     shared::utils::jwt::Claims,
-    shared::utils::query::ListParams,
+    application::common::list_params::ListParams,
 };
 
 const UPLOAD_ROOT: &str = "uploads";

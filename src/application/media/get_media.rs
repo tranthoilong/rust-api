@@ -1,5 +1,8 @@
-use crate::domain::{entities::media::Media, repositories::media_repository::MediaRepository};
-use crate::shared::utils::query::{ListParams, PaginatedResult};
+use crate::application::common::list_params::{ListParams, PaginatedResult};
+use crate::domain::{
+    entities::media::Media,
+    repositories::media_repository::{MediaRepository, MediaSearchFilter},
+};
 
 pub struct GetMediaUseCase<R: MediaRepository> {
     repo: R,
@@ -26,7 +29,14 @@ impl<R: MediaRepository> GetMediaUseCase<R> {
         user_id: Uuid,
         params: &ListParams,
     ) -> Result<PaginatedResult<Media>, String> {
-        self.repo.find_paginated(params, Some(user_id)).await
+        let filter = MediaSearchFilter {
+            search: params.search.clone(),
+            user_id: Some(user_id),
+        };
+        let limit = params.limit.unwrap_or(20).clamp(1, 100);
+        self.repo
+            .search(&filter, params.sort_by.clone(), params.cursor.clone(), limit)
+            .await
     }
 
     #[allow(dead_code)]
@@ -34,6 +44,13 @@ impl<R: MediaRepository> GetMediaUseCase<R> {
         &self,
         params: &ListParams,
     ) -> Result<PaginatedResult<Media>, String> {
-        self.repo.find_paginated(params, None).await
+        let filter = MediaSearchFilter {
+            search: params.search.clone(),
+            user_id: None,
+        };
+        let limit = params.limit.unwrap_or(20).clamp(1, 100);
+        self.repo
+            .search(&filter, params.sort_by.clone(), params.cursor.clone(), limit)
+            .await
     }
 }

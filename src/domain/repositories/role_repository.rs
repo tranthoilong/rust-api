@@ -1,14 +1,25 @@
 use crate::domain::entities::role::{NewRole, Role, UpdateRole};
-use crate::shared::utils::query::{ListParams, PaginatedResult};
+use crate::shared::utils::query::PaginatedResult;
 use async_trait::async_trait;
 
 use uuid::Uuid;
+
+#[derive(Debug, Clone)]
+pub struct RoleSearchFilter {
+    pub search: Option<String>,
+}
 
 #[async_trait]
 pub trait RoleRepository: Send + Sync {
     #[allow(dead_code)]
     async fn find_all(&self) -> Result<Vec<Role>, String>;
-    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<Role>, String>;
+    async fn search(
+        &self,
+        filter: &RoleSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
+    ) -> Result<PaginatedResult<Role>, String>;
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Role>, String>;
     async fn create(&self, role: NewRole) -> Result<Role, String>;
     async fn update(&self, id: Uuid, role: UpdateRole) -> Result<Role, String>;
@@ -24,8 +35,14 @@ impl<T: RoleRepository + ?Sized + Send + Sync> RoleRepository for std::sync::Arc
         (**self).find_all().await
     }
 
-    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<Role>, String> {
-        (**self).find_paginated(params).await
+    async fn search(
+        &self,
+        filter: &RoleSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
+    ) -> Result<PaginatedResult<Role>, String> {
+        (**self).search(filter, sort_by, cursor, limit).await
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Role>, String> {

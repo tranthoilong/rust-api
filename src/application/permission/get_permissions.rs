@@ -1,6 +1,8 @@
+use crate::application::common::list_params::{ListParams, PaginatedResult};
 use crate::domain::entities::permission::Permission;
-use crate::domain::repositories::permission_repository::PermissionRepository;
-use crate::shared::utils::query::{ListParams, PaginatedResult};
+use crate::domain::repositories::permission_repository::{
+    PermissionRepository, PermissionSearchFilter,
+};
 use std::sync::Arc;
 
 pub struct GetPermissionsUseCase {
@@ -16,6 +18,12 @@ impl GetPermissionsUseCase {
         &self,
         params: &ListParams,
     ) -> Result<PaginatedResult<Permission>, String> {
-        self.repo.find_paginated(params).await
+        let filter = PermissionSearchFilter {
+            search: params.search.clone(),
+        };
+        let limit = params.limit.unwrap_or(20).clamp(1, 100);
+        self.repo
+            .search(&filter, params.sort_by.clone(), params.cursor.clone(), limit)
+            .await
     }
 }

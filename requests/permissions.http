@@ -16,7 +16,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "article:create",
+    "name": "articles:create",
     "description": "Can create articles",
     "resource": "article",
     "action": "create"

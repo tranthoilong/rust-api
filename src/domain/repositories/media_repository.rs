@@ -1,17 +1,25 @@
 use crate::domain::entities::media::{Media, NewMedia};
-use crate::shared::utils::query::{ListParams, PaginatedResult};
+use crate::shared::utils::query::PaginatedResult;
 use async_trait::async_trait;
 
 use uuid::Uuid;
+
+#[derive(Debug, Clone)]
+pub struct MediaSearchFilter {
+    pub search: Option<String>,
+    pub user_id: Option<Uuid>,
+}
 
 #[async_trait]
 pub trait MediaRepository: Send + Sync {
     async fn create(&self, media: NewMedia) -> Result<Media, String>;
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Media>, String>;
-    async fn find_paginated(
+    async fn search(
         &self,
-        params: &ListParams,
-        user_filter: Option<Uuid>,
+        filter: &MediaSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
     ) -> Result<PaginatedResult<Media>, String>;
     #[allow(dead_code)]
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Media>, String>;
@@ -27,12 +35,14 @@ impl<T: MediaRepository + ?Sized + Send + Sync> MediaRepository for std::sync::A
         (**self).find_by_id(id).await
     }
 
-    async fn find_paginated(
+    async fn search(
         &self,
-        params: &ListParams,
-        user_filter: Option<Uuid>,
+        filter: &MediaSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
     ) -> Result<PaginatedResult<Media>, String> {
-        (**self).find_paginated(params, user_filter).await
+        (**self).search(filter, sort_by, cursor, limit).await
     }
 
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<Media>, String> {

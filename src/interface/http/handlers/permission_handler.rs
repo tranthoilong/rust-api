@@ -14,7 +14,7 @@ use crate::application::permission::{
 };
 use crate::domain::entities::permission::{NewPermission, UpdatePermission};
 use crate::interface::http::response::ApiResponse;
-use crate::shared::utils::query::ListParams;
+use crate::application::common::list_params::ListParams;
 
 pub async fn get_permissions(
     State(state): State<Arc<AppState>>,

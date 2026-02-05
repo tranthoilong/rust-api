@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use sqlx::{Pool, Postgres};
 
 use crate::domain::entities::role::{NewRole, Role, UpdateRole};
-use crate::domain::repositories::role_repository::RoleRepository;
+use crate::domain::repositories::role_repository::{RoleRepository, RoleSearchFilter};
 use crate::shared::utils::query::{
-    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType, ListParams,
-    PaginatedResult, SortDirection,
+    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType,
+    ListParams, PaginatedResult, SortDirection,
 };
 
 pub struct PgRoleRepository {
@@ -32,7 +32,13 @@ impl RoleRepository for PgRoleRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_paginated(&self, params: &ListParams) -> Result<PaginatedResult<Role>, String> {
+    async fn search(
+        &self,
+        filter: &RoleSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
+    ) -> Result<PaginatedResult<Role>, String> {
         let allowed_fields = [
             FieldInfo {
                 name: "name",
@@ -45,9 +51,18 @@ impl RoleRepository for PgRoleRepository {
         ];
 
         let base_sql = r#"SELECT id, name, created_at, updated_at, deleted_at FROM roles"#;
+
+        let params = ListParams {
+            search: filter.search.clone(),
+            fields: None,
+            sort_by,
+            cursor,
+            limit: Some(limit),
+        };
+
         let built = build_query(
             base_sql,
-            params,
+            &params,
             &allowed_fields,
             "created_at",
             SortDirection::Desc,

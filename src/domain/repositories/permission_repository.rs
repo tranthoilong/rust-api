@@ -1,16 +1,24 @@
 use crate::domain::entities::permission::{NewPermission, Permission, UpdatePermission};
-use crate::shared::utils::query::{ListParams, PaginatedResult};
+use crate::shared::utils::query::PaginatedResult;
 use async_trait::async_trait;
 
 use uuid::Uuid;
+
+#[derive(Debug, Clone)]
+pub struct PermissionSearchFilter {
+    pub search: Option<String>,
+}
 
 #[async_trait]
 pub trait PermissionRepository: Send + Sync {
     #[allow(dead_code)]
     async fn find_all(&self) -> Result<Vec<Permission>, String>;
-    async fn find_paginated(
+    async fn search(
         &self,
-        params: &ListParams,
+        filter: &PermissionSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
     ) -> Result<PaginatedResult<Permission>, String>;
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Permission>, String>;
     async fn create(&self, permission: NewPermission) -> Result<Permission, String>;
@@ -27,11 +35,14 @@ impl<T: PermissionRepository + ?Sized + Send + Sync> PermissionRepository for st
         (**self).find_all().await
     }
 
-    async fn find_paginated(
+    async fn search(
         &self,
-        params: &ListParams,
+        filter: &PermissionSearchFilter,
+        sort_by: Option<String>,
+        cursor: Option<String>,
+        limit: i64,
     ) -> Result<PaginatedResult<Permission>, String> {
-        (**self).find_paginated(params).await
+        (**self).search(filter, sort_by, cursor, limit).await
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Permission>, String> {
