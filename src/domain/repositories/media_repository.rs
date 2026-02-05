@@ -14,6 +14,8 @@ pub struct MediaSearchFilter {
 pub trait MediaRepository: Send + Sync {
     async fn create(&self, media: NewMedia) -> Result<Media, String>;
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Media>, String>;
+    /// Cập nhật metadata cho 1 media (theo id trong struct)
+    async fn update(&self, media: Media) -> Result<Media, String>;
     async fn search(
         &self,
         filter: &MediaSearchFilter,
@@ -38,6 +40,10 @@ impl<T: MediaRepository + ?Sized + Send + Sync> MediaRepository for std::sync::A
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Media>, String> {
         (**self).find_by_id(id).await
+    }
+
+    async fn update(&self, media: Media) -> Result<Media, String> {
+        (**self).update(media).await
     }
 
     async fn search(

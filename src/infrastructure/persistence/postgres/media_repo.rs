@@ -39,6 +39,26 @@ impl MediaRepository for PgMediaRepository {
         .map_err(|e| e.to_string())
     }
 
+    async fn update(&self, media: Media) -> Result<Media, String> {
+        sqlx::query_as!(
+            Media,
+            r#"
+            UPDATE media
+            SET media_type = $2,
+                file_path = $3,
+                updated_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING id, user_id, media_type, file_path, created_at, updated_at, deleted_at
+            "#,
+            media.id,
+            media.media_type,
+            media.file_path
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
+    }
+
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Media>, String> {
         sqlx::query_as!(
             Media,

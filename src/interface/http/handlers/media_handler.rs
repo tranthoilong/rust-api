@@ -15,6 +15,7 @@ use crate::{
         create_media::CreateMediaUseCase,
         delete_media::DeleteMediaUseCase,
         get_media::GetMediaUseCase,
+        update_media::{UpdateMediaInput, UpdateMediaUseCase},
     },
     domain::entities::media::{Media, NewMedia},
     interface::http::response::ApiResponse,
@@ -123,6 +124,27 @@ pub async fn get_media(
         Ok(Some(media)) => Ok(Json(media)),
         Ok(None) => Err((StatusCode::NOT_FOUND, "Media not found".to_string())),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e)),
+    }
+}
+
+pub async fn update_media(
+    State(state): State<Arc<AppState>>,
+    AxumPath(id): AxumPath<uuid::Uuid>,
+    axum::Json(payload): axum::Json<UpdateMediaInput>,
+) -> impl IntoResponse {
+    let use_case = UpdateMediaUseCase::new(state.media_repo.clone());
+
+    match use_case.execute(id, payload).await {
+        Ok(media) => ApiResponse::success(serde_json::json!(media), Some("Media updated".to_string()))
+            .into_response(),
+        Err(e) => {
+            let status = if e.contains("not found") {
+                StatusCode::NOT_FOUND
+            } else {
+                StatusCode::INTERNAL_SERVER_ERROR
+            };
+            ApiResponse::<()>::error(status, "ERROR".to_string(), e, None, None).into_response()
+        }
     }
 }
 
