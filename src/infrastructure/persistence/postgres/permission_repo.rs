@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use sqlx::{Pool, Postgres};
+use uuid::Uuid;
 
 use crate::domain::entities::permission::{NewPermission, Permission, UpdatePermission};
 use crate::domain::repositories::permission_repository::PermissionRepository;
@@ -14,14 +15,12 @@ impl PgPermissionRepository {
     }
 }
 
-use uuid::Uuid;
-
 #[async_trait]
 impl PermissionRepository for PgPermissionRepository {
     async fn find_all(&self) -> Result<Vec<Permission>, String> {
         sqlx::query_as!(
             Permission,
-            r#"SELECT id, name, created_at, updated_at, deleted_at FROM permissions"#
+            r#"SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE deleted_at IS NULL"#
         )
         .fetch_all(&self.pool)
         .await
@@ -31,7 +30,7 @@ impl PermissionRepository for PgPermissionRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Permission>, String> {
         sqlx::query_as!(
             Permission,
-            r#"SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE id = $1"#,
+            r#"SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE id = $1 AND deleted_at IS NULL"#,
             id
         )
         .fetch_optional(&self.pool)
@@ -55,13 +54,18 @@ impl PermissionRepository for PgPermissionRepository {
     }
 
     async fn update(&self, id: Uuid, permission: UpdatePermission) -> Result<Permission, String> {
+        // Validate that there's at least something to update
+        if permission.name.is_none() {
+            return Err("No fields to update".to_string());
+        }
+
         sqlx::query_as!(
             Permission,
             r#"
             UPDATE permissions
             SET name = COALESCE($1, name),
                 updated_at = NOW()
-            WHERE id = $2
+            WHERE id = $2 AND deleted_at IS NULL
             RETURNING id, name, created_at, updated_at, deleted_at
             "#,
             permission.name,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE id = $1",
+  "query": "SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE deleted_at IS NULL",
   "describe": {
     "columns": [
       {
@@ -30,9 +30,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -42,5 +40,5 @@
       true
     ]
   },
-  "hash": "a86729cbc9d5730e1d96a569c26f8e15f9fb5d2eb4b361fa8b6f0ba90175a6b2"
+  "hash": "ad6ff1404a3b168cd9f3861ef3381fa98225a819d3c42938617af8fc55df8ec2"
 }
