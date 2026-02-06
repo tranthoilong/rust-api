@@ -1,50 +1,46 @@
 @host = http://localhost:4000/api/v1
 @contentType = application/json
-@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTljMmNjYS04MTg3LTc4NDItOTNjZS1mMzI2YWJkOGUzNmIiLCJpYXQiOjE3NzAyODExMzksImV4cCI6MTc3MDI4NDczOX0.p8JSQU07c0nF6ZQcbO6kTtTy-ZTsFoW_rbB_tnaiUjo
+@authToken = your_bearer_token_here
+@userId = 019c2cca-8187-7842-93ce-f326abd8e36b
+@roleId = 019c2cca-0000-7842-93ce-f326abd8e36b
 
-# ==========================================
-# USER REQUESTS
-# ==========================================
-
-### Lấy danh sách Users
-GET {{host}}/users?search=john&fields=name,email&sort_by=created_at:desc&limit=10
+### List users (search, sort_by, cursor, limit)
+GET {{host}}/users?search=test&sort_by=created_at:desc&limit=10
 Authorization: Bearer {{authToken}}
 
-### Tạo User mới
+### Create user
 POST {{host}}/users
 Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "username": "testuser",
-    "email": "test@example.com",
-    "password": "password123",
-    "status": "active"
+  "name": "New User",
+  "email": "newuser@example.com",
+  "password": "Password123!"
 }
 
-### Lấy chi tiết User
-@userId = 1
+### Get user by ID
 GET {{host}}/users/{{userId}}
 Authorization: Bearer {{authToken}}
 
-### Cập nhật User
+### Update user
 PATCH {{host}}/users/{{userId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "username": "updated_user"
+  "name": "Updated Name",
+  "status": "active"
 }
 
-### Xóa User
+### Delete user
 DELETE {{host}}/users/{{userId}}
 Authorization: Bearer {{authToken}}
 
-### Gán Role cho User
-@roleId = 1
+### Assign role to user
 POST {{host}}/users/{{userId}}/roles/{{roleId}}
 Authorization: Bearer {{authToken}}
 
-### Gỡ Role khỏi User
+### Revoke role from user
 DELETE {{host}}/users/{{userId}}/roles/{{roleId}}
 Authorization: Bearer {{authToken}}

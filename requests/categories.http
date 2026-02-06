@@ -1,0 +1,44 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = your_bearer_token_here
+
+### List categories (query type, mặc định "post")
+GET {{host}}/categories?type=post
+Authorization: Bearer {{authToken}}
+
+### Get category by slug
+GET {{host}}/categories/tech?type=post
+Authorization: Bearer {{authToken}}
+
+### Create category
+POST {{host}}/categories
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Technology",
+  "slug": "tech",
+  "type": "post",
+  "description": "Bài viết công nghệ"
+}
+
+### Update category
+PATCH {{host}}/categories/tech
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Tech & Science",
+  "description": "Công nghệ và khoa học"
+}
+
+### Delete category
+DELETE {{host}}/categories/tech
+Authorization: Bearer {{authToken}}
+
+### Bulk delete categories
+POST {{host}}/categories/bulk-delete
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+["019c2cca-0000-7842-93ce-000000000005"]

@@ -1,52 +1,47 @@
 @host = http://localhost:4000/api/v1
 @contentType = application/json
-@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTljMmNjYS04MTg3LTc4NDItOTNjZS1mMzI2YWJkOGUzNmIiLCJpYXQiOjE3NzAyODExMzksImV4cCI6MTc3MDI4NDczOX0.p8JSQU07c0nF6ZQcbO6kTtTy-ZTsFoW_rbB_tnaiUjo
+@authToken = your_bearer_token_here
+@roleId = 019c2cca-0000-7842-93ce-f326abd8e36b
+@permissionId = 019c2cca-0000-7842-93ce-000000000001
 
-# ==========================================
-# ROLE REQUESTS
-# ==========================================
-
-### Lấy danh sách Roles
-GET {{host}}/roles?search=admin&fields=name&sort_by=created_at:desc&limit=10
+### List roles (search, sort_by, limit)
+GET {{host}}/roles?search=admin&sort_by=name:asc&limit=20
 Authorization: Bearer {{authToken}}
 
-### Tạo Role mới
+### Create role
 POST {{host}}/roles
 Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "Editor",
-    "description": "Can edit content"
+  "name": "Editor"
 }
 
-### Lấy chi tiết Role
-@roleId = 1
+### Get role by ID
 GET {{host}}/roles/{{roleId}}
 Authorization: Bearer {{authToken}}
 
-### Cập nhật Role
+### Update role
 PATCH {{host}}/roles/{{roleId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "description": "Updated description"
+  "name": "Senior Editor"
 }
 
-### Xóa Role
+### Delete role
 DELETE {{host}}/roles/{{roleId}}
 Authorization: Bearer {{authToken}}
 
-### Lấy Permissions của Role
+### Get permissions of role
 GET {{host}}/roles/{{roleId}}/permissions
 Authorization: Bearer {{authToken}}
 
-### Gán Permission cho Role
-@permissionId = 1
+### Assign permission to role
 POST {{host}}/roles/{{roleId}}/permissions/{{permissionId}}
 Authorization: Bearer {{authToken}}
 
-### Gỡ Permission khỏi Role
+### Revoke permission from role
 DELETE {{host}}/roles/{{roleId}}/permissions/{{permissionId}}
 Authorization: Bearer {{authToken}}

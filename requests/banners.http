@@ -1,0 +1,46 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = your_bearer_token_here
+@bannerId = 019c2cca-0000-7842-93ce-000000000003
+
+### List active banners
+GET {{host}}/banners/active
+Authorization: Bearer {{authToken}}
+
+### Get banner by key
+GET {{host}}/banners/key/homepage_hero
+Authorization: Bearer {{authToken}}
+
+### Create banner
+POST {{host}}/banners
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Home Hero",
+  "slug": "home-hero",
+  "key": "homepage_hero",
+  "description": "Banner trang chủ",
+  "is_active": true
+}
+
+### Update banner
+PATCH {{host}}/banners/{{bannerId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Home Hero Updated",
+  "is_active": false
+}
+
+### Delete banner
+DELETE {{host}}/banners/{{bannerId}}
+Authorization: Bearer {{authToken}}
+
+### Bulk delete banners
+POST {{host}}/banners/bulk-delete
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+["019c2cca-0000-7842-93ce-000000000003"]

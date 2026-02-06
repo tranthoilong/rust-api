@@ -1,29 +1,46 @@
 @host = http://localhost:4000/api/v1
-@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMiIsImlhdCI6MTc3MDI3NDk2NSwiZXhwIjoxNzcwMjc4NTY1fQ.iJ4hZDg6iP04NcD8JOf5Mxb0jwQfsBt6v-Ls-FQXVP0
+@contentType = application/json
+@authToken = your_bearer_token_here
+@userId = 019c2cca-8187-7842-93ce-f326abd8e36b
+@mediaId = 019c2cca-0000-7842-93ce-000000000002
 
-# ==========================================
-# MEDIA REQUESTS
-# ==========================================
-
-### Upload Media
-# Note: Cần sử dụng file thực tế hoặc boundary fake
+### Upload media (multipart)
 POST {{host}}/media
 Authorization: Bearer {{authToken}}
-Content-Type: multipart/form-data; boundary=boundary
+Content-Type: multipart/form-data; boundary=----boundary
 
---boundary
+------boundary
 Content-Disposition: form-data; name="file"; filename="test.txt"
 Content-Type: text/plain
 
-This is a test file content.
---boundary--
+Hello world
+------boundary------
 
-### Lấy thông tin Media
-@mediaId = 1
+### List media (user's media, search/pagination)
+GET {{host}}/users/{{userId}}/media?search=test&limit=10
+Authorization: Bearer {{authToken}}
+
+### Get media by ID
 GET {{host}}/media/{{mediaId}}
 Authorization: Bearer {{authToken}}
 
-### Lấy Media của User
-@userId = 1
-GET {{host}}/users/{{userId}}/media?search=image&fields=media_type,file_path&sort_by=created_at:desc&limit=10
+### Update media
+PATCH {{host}}/media/{{mediaId}}
+Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
+
+{
+  "media_type": "image",
+  "file_path": "/uploads/new-path.png"
+}
+
+### Delete media
+DELETE {{host}}/media/{{mediaId}}
+Authorization: Bearer {{authToken}}
+
+### Bulk delete media
+POST {{host}}/media/bulk-delete
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+["019c2cca-0000-7842-93ce-000000000002"]

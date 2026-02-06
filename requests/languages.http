@@ -1,0 +1,10 @@
+@host = http://localhost:4000/api/v1
+@authToken = your_bearer_token_here
+
+### List languages
+GET {{host}}/languages
+Authorization: Bearer {{authToken}}
+
+### Get default language
+GET {{host}}/languages/default
+Authorization: Bearer {{authToken}}
