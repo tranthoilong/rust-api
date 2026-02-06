@@ -135,6 +135,7 @@ pub fn build_query(
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn build_query_with_seed(
     base_sql: &str,
     params: &ListParams,
