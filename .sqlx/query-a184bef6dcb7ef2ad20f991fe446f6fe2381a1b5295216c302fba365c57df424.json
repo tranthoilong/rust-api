@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE media\n            SET deleted_at = NOW()\n            WHERE id = ANY($1) AND deleted_at IS NULL\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a184bef6dcb7ef2ad20f991fe446f6fe2381a1b5295216c302fba365c57df424"
+}

@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE banner_items\n            SET banner_id = $2,\n                title = $3,\n                subtitle = $4,\n                image_url = $5,\n                link_url = $6,\n                position = $7,\n                updated_at = NOW()\n            WHERE id = $1 AND deleted_at IS NULL\n            RETURNING id, banner_id, title, subtitle, image_url, link_url, position,\n                      created_at, updated_at, deleted_at\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "banner_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "subtitle",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "image_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "link_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "position",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 8,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 9,
+        "name": "deleted_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "d3ba9202b29f95cff3006750e99def0b675d036b0ad0e90ad0a35ca14012b9aa"
+}

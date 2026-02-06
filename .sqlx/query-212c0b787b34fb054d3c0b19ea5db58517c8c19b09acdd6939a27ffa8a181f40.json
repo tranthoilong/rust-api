@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT id, banner_id, title, subtitle, image_url, link_url, position,\n                   created_at, updated_at, deleted_at\n            FROM banner_items\n            WHERE banner_id = $1 AND deleted_at IS NULL\n            ORDER BY position NULLS LAST, created_at ASC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "banner_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "subtitle",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "image_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "link_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "position",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 8,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 9,
+        "name": "deleted_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "212c0b787b34fb054d3c0b19ea5db58517c8c19b09acdd6939a27ffa8a181f40"
+}

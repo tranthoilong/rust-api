@@ -18,13 +18,15 @@ if command -v sqlx &> /dev/null; then
     sqlx migrate run
     echo "Database initialized successfully (via sqlx)!"
 elif command -v psql &> /dev/null; then
-    # Fallback to psql if sqlx is not available - finding latest migration
-    LATEST_MIGRATION=$(ls migrations/*.sql | sort | tail -n 1)
-    if [ -n "$LATEST_MIGRATION" ]; then
-        psql "$DATABASE_URL" -f "$LATEST_MIGRATION"
-        echo "Database initialized successfully (via psql using $LATEST_MIGRATION)!"
+    # Fallback: chạy tất cả migration theo thứ tự (1., 2., 3....)
+    if [ -d "migrations" ]; then
+        for f in $(ls migrations/*.sql 2>/dev/null | sort); do
+            echo "Running migration: $f"
+            psql "$DATABASE_URL" -f "$f" || exit 1
+        done
+        echo "Database initialized successfully (via psql)!"
     else
-        echo "No migration files found in migrations/"
+        echo "No migrations/ directory found."
         exit 1
     fi
 else
