@@ -1,0 +1,49 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = your_bearer_token_here
+
+### List posts
+GET {{host}}/posts
+Authorization: Bearer {{authToken}}
+
+### Get post by slug
+GET {{host}}/posts/hello-world
+Authorization: Bearer {{authToken}}
+
+### Create post
+POST {{host}}/posts
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "author_id": "019c2cca-8187-7842-93ce-f326abd8e36b",
+  "category_id": "019c2cca-0000-7842-93ce-000000000005",
+  "title": "Hello World",
+  "slug": "hello-world",
+  "excerpt": "Tóm tắt",
+  "content": "Nội dung bài viết...",
+  "status": "draft",
+  "published_at": null
+}
+
+### Update post
+PATCH {{host}}/posts/hello-world
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Hello World Updated",
+  "status": "published",
+  "content": "Nội dung đã cập nhật"
+}
+
+### Delete post
+DELETE {{host}}/posts/hello-world
+Authorization: Bearer {{authToken}}
+
+### Bulk delete posts
+POST {{host}}/posts/bulk-delete
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+["019c2cca-0000-7842-93ce-000000000007"]

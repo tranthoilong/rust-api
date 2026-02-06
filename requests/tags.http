@@ -1,0 +1,44 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = your_bearer_token_here
+
+### List tags (query type)
+GET {{host}}/tags?type=post
+Authorization: Bearer {{authToken}}
+
+### Get tag by slug
+GET {{host}}/tags/rust?type=post
+Authorization: Bearer {{authToken}}
+
+### Create tag
+POST {{host}}/tags
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Rust",
+  "slug": "rust",
+  "type": "post",
+  "description": "Tag Rust"
+}
+
+### Update tag
+PATCH {{host}}/tags/rust
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Rust Lang",
+  "description": "Rust programming"
+}
+
+### Delete tag
+DELETE {{host}}/tags/rust
+Authorization: Bearer {{authToken}}
+
+### Bulk delete tags
+POST {{host}}/tags/bulk-delete
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+["019c2cca-0000-7842-93ce-000000000006"]

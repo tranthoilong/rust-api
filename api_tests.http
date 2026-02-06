@@ -1,165 +1,25 @@
-@host = http://localhost:4000/api/v1
-@contentType = application/json
-# Biến token sẽ được điền tự động hoặc thủ công sau khi login
-@authToken = your_auth_token_here
-
-### Kiểm tra Health Check
-GET http://localhost:4000/
-# Expected: "Rust API is running!"
-
-# ==========================================
-# AUTHENTICATION
-# ==========================================
-
-### Login (Lấy Token)
-# @name login
-POST {{host}}/auth/login
-Content-Type: {{contentType}}
-
-{
-    "email": "admin@example.com",
-    "password": "password123"
-}
-
-### Lưu Token từ response login (Nếu dùng REST Client Extension)
-@authToken = {{login.response.body.token}}
-
-# ==========================================
-# USERS
-# ==========================================
-
-### Lấy danh sách Users
-GET {{host}}/users
-Authorization: Bearer {{authToken}}
-
-### Tạo User mới
-POST {{host}}/users
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-    "username": "testuser",
-    "email": "test@example.com",
-    "password": "password123",
-    "status": "active"
-}
-
-### Lấy chi tiết User
-@userId = 1
-GET {{host}}/users/{{userId}}
-Authorization: Bearer {{authToken}}
-
-### Cập nhật User
-PATCH {{host}}/users/{{userId}}
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-    "username": "updated_user"
-}
-
-### Xóa User
-DELETE {{host}}/users/{{userId}}
-Authorization: Bearer {{authToken}}
-
-### Gán Role cho User
-@roleId = 1
-POST {{host}}/users/{{userId}}/roles/{{roleId}}
-Authorization: Bearer {{authToken}}
-
-### Gỡ Role khỏi User
-DELETE {{host}}/users/{{userId}}/roles/{{roleId}}
-Authorization: Bearer {{authToken}}
-
-# ==========================================
-# ROLES
-# ==========================================
-
-### Lấy danh sách Roles
-GET {{host}}/roles
-Authorization: Bearer {{authToken}}
-
-### Tạo Role mới
-POST {{host}}/roles
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-    "name": "Editor",
-    "description": "Can edit content"
-}
-
-### Lấy chi tiết Role
-GET {{host}}/roles/{{roleId}}
-Authorization: Bearer {{authToken}}
-
-### Cập nhật Role
-PATCH {{host}}/roles/{{roleId}}
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-    "description": "Updated description"
-}
-
-### Lấy Permissions của Role
-GET {{host}}/roles/{{roleId}}/permissions
-Authorization: Bearer {{authToken}}
-
-# ==========================================
-# PERMISSIONS
-# ==========================================
-
-### Lấy danh sách Permissions
-GET {{host}}/permissions
-Authorization: Bearer {{authToken}}
-
-### Tạo Permission mới
-POST {{host}}/permissions
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-    "name": "article:create",
-    "description": "Can create articles",
-    "resource": "article",
-    "action": "create"
-}
-
-### Lấy chi tiết Permission
-@permissionId = 1
-GET {{host}}/permissions/{{permissionId}}
-Authorization: Bearer {{authToken}}
-
-# ==========================================
-# MEDIA
-# ==========================================
-
-### Upload Media (Cần form-data, REST Client hỗ trợ)
-POST {{host}}/media
-Authorization: Bearer {{authToken}}
-Content-Type: multipart/form-data; boundary=boundary
-
---boundary
-Content-Disposition: form-data; name="file"; filename="test.txt"
-Content-Type: text/plain
-
-Nội dung file test
---boundary--
-
-### Lấy thông tin Media
-@mediaId = 1
-GET {{host}}/media/{{mediaId}}
-Authorization: Bearer {{authToken}}
-
-### Lấy Media của User
-GET {{host}}/users/{{userId}}/media
-Authorization: Bearer {{authToken}}
-
-# ==========================================
-# ADMIN
-# ==========================================
-
-### Admin Dashboard (Yêu cầu Role Admin)
-GET {{host}}/admin/dashboard
-Authorization: Bearer {{authToken}}
+# ============================================================
+# Rust API - Mục lục HTTP Test (REST Client / VS Code)
+# Các request đã được tách thành từng file trong thư mục requests/
+# ============================================================
+#
+# Danh sách file:
+#   requests/health.http      - Health check
+#   requests/auth.http        - Register, Login, Get me
+#   requests/users.http       - Users CRUD, assign/revoke role
+#   requests/profile.http     - Me profile GET/PUT
+#   requests/roles.http       - Roles CRUD, permissions của role
+#   requests/permissions.http - Permissions CRUD
+#   requests/media.http       - Media upload, list, CRUD, bulk-delete
+#   requests/settings.http    - Settings list, get, update
+#   requests/banners.http     - Banners list active, get by key, CRUD
+#   requests/banner-items.http - Banner items CRUD
+#   requests/categories.http - Categories list, get by slug, CRUD
+#   requests/tags.http        - Tags list, get by slug, CRUD
+#   requests/posts.http       - Posts list, get by slug, CRUD
+#   requests/languages.http  - Languages list, default
+#   requests/audit-logs.http  - Audit logs list
+#   requests/admin.http       - Admin dashboard
+#
+# Biến chung: requests/_env.http (host, contentType, authToken)
+# ============================================================

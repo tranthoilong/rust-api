@@ -1,0 +1,19 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTljMzA2My1iMmJiLTc3MWUtOGFmZi04OGE1ZWZjYmEyMGUiLCJpYXQiOjE3NzAzMzg3NTQsImV4cCI6MTc3MDM0MjM1NH0.Zw3oPnGgVOx00LMuDVWhL-eI-m-vWbSd-xN25uLl3rI
+
+### Get my profile
+GET {{host}}/me/profile
+Authorization: Bearer {{authToken}}
+
+### Update my profile
+PUT {{host}}/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "avatar_url": "https://example.com/avatar.png",
+  "phone": "+84123456789",
+  "address": "HN",
+  "bio": "Hello"
+}

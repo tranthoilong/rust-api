@@ -1,0 +1,6 @@
+@host = http://localhost:4000/api/v1
+@authToken = your_bearer_token_here
+
+### List audit logs
+GET {{host}}/audit-logs
+Authorization: Bearer {{authToken}}

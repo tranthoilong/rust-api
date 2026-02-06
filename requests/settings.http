@@ -1,0 +1,20 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = your_bearer_token_here
+
+### List settings
+GET {{host}}/settings
+Authorization: Bearer {{authToken}}
+
+### Get setting by key
+GET {{host}}/settings/site_name
+Authorization: Bearer {{authToken}}
+
+### Update setting
+PUT {{host}}/settings/site_name
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "value": { "vi": "Tên site", "en": "Site name" }
+}

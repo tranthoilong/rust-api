@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use sqlx::{Pool, Postgres};
+use sqlx::{Pool, Postgres, Row};
 
 use crate::domain::entities::user::{NewUser, UpdateUser, User, UserStatus};
 use crate::domain::repositories::user_repository::{UserRepository, UserSearchFilter};
@@ -132,20 +132,40 @@ impl UserRepository for PgUserRepository {
     }
 
     async fn create(&self, user: NewUser) -> Result<User, String> {
-        sqlx::query_as!(
-            User,
+        // Decode row thủ công để ép id là UUID (tránh lỗi decode 8 vs 16 bytes từ cache/macro).
+        let row = sqlx::query(
             r#"
             INSERT INTO users (name, email, password)
             VALUES ($1, $2, $3)
-            RETURNING id, name, email, password, status as "status: UserStatus", created_at, updated_at, deleted_at
+            RETURNING id, name, email, password, status, created_at, updated_at, deleted_at
             "#,
-            user.name,
-            user.email,
-            user.password
         )
+        .bind(&user.name)
+        .bind(&user.email)
+        .bind(&user.password)
         .fetch_one(&self.pool)
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+
+        let id: Uuid = row.try_get("id").map_err(|e| e.to_string())?;
+        let name: String = row.try_get("name").map_err(|e| e.to_string())?;
+        let email: String = row.try_get("email").map_err(|e| e.to_string())?;
+        let password: String = row.try_get("password").map_err(|e| e.to_string())?;
+        let status: Option<UserStatus> = row.try_get("status").map_err(|e| e.to_string())?;
+        let created_at: Option<chrono::NaiveDateTime> = row.try_get("created_at").map_err(|e| e.to_string())?;
+        let updated_at: Option<chrono::NaiveDateTime> = row.try_get("updated_at").map_err(|e| e.to_string())?;
+        let deleted_at: Option<chrono::NaiveDateTime> = row.try_get("deleted_at").map_err(|e| e.to_string())?;
+
+        Ok(User {
+            id,
+            name,
+            email,
+            password,
+            status,
+            created_at,
+            updated_at,
+            deleted_at,
+        })
     }
 
     async fn update(&self, id: Uuid, user: UpdateUser) -> Result<User, String> {

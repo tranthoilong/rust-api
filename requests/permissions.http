@@ -1,41 +1,34 @@
 @host = http://localhost:4000/api/v1
 @contentType = application/json
-@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTljMmNjYS04MTg3LTc4NDItOTNjZS1mMzI2YWJkOGUzNmIiLCJpYXQiOjE3NzAzMDE4MzEsImV4cCI6MTc3MDMwNTQzMX0.9zdltvmyB2FFqazGBdxtetKs4FnJh-8nVekJ5HANals
+@authToken = your_bearer_token_here
+@permissionId = 019c2cca-0000-7842-93ce-000000000001
 
-# ==========================================
-# PERMISSION REQUESTS
-# ==========================================
-
-### Lấy danh sách Permissions
-GET {{host}}/permissions?search=&fields=name&sort_by=created_at:desc&limit=5&cursor=
+### List permissions (search, limit)
+GET {{host}}/permissions?search=article&limit=10
 Authorization: Bearer {{authToken}}
 
-### Tạo Permission mới
+### Create permission
 POST {{host}}/permissions
 Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "articles:create",
-    "description": "Can create articles",
-    "resource": "article",
-    "action": "create"
+  "name": "article:create"
 }
 
-### Lấy chi tiết Permission
-@permissionId = 1
+### Get permission by ID
 GET {{host}}/permissions/{{permissionId}}
 Authorization: Bearer {{authToken}}
 
-### Cập nhật Permission
+### Update permission
 PATCH {{host}}/permissions/{{permissionId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "description": "Updated permission description"
+  "name": "article:write"
 }
 
-### Xóa Permission
+### Delete permission
 DELETE {{host}}/permissions/{{permissionId}}
 Authorization: Bearer {{authToken}}

@@ -1,0 +1,162 @@
+use async_trait::async_trait;
+use sqlx::{Pool, Postgres};
+use uuid::Uuid;
+
+use crate::domain::entities::tag::Tag;
+use crate::domain::repositories::tag_repository::TagRepository;
+
+pub struct PgTagRepository {
+    pool: Pool<Postgres>,
+}
+
+impl PgTagRepository {
+    pub fn new(pool: Pool<Postgres>) -> Self {
+        Self { pool }
+    }
+}
+
+#[async_trait]
+impl TagRepository for PgTagRepository {
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<Tag>, String> {
+        sqlx::query_as!(
+            Tag,
+            r#"
+            SELECT id, name, slug, type, description,
+                   created_at, updated_at, deleted_at
+            FROM tags
+            WHERE id = $1 AND deleted_at IS NULL
+            "#,
+            id
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
+    }
+
+    async fn find_by_slug_and_type(
+        &self,
+        slug: &str,
+        r#type: &str,
+    ) -> Result<Option<Tag>, String> {
+        sqlx::query_as!(
+            Tag,
+            r#"
+            SELECT id, name, slug, type, description,
+                   created_at, updated_at, deleted_at
+            FROM tags
+            WHERE slug = $1 AND type = $2 AND deleted_at IS NULL
+            "#,
+            slug,
+            r#type
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
+    }
+
+    async fn list_by_type(&self, r#type: &str) -> Result<Vec<Tag>, String> {
+        sqlx::query_as!(
+            Tag,
+            r#"
+            SELECT id, name, slug, type, description,
+                   created_at, updated_at, deleted_at
+            FROM tags
+            WHERE type = $1 AND deleted_at IS NULL
+            ORDER BY name
+            "#,
+            r#type
+        )
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
+    }
+
+    async fn create(&self, tag: Tag) -> Result<Tag, String> {
+        let created = sqlx::query_as!(
+            Tag,
+            r#"
+            INSERT INTO tags (
+                id, name, slug, type, description,
+                created_at, updated_at, deleted_at
+            )
+            VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)
+            RETURNING id, name, slug, type, description,
+                      created_at, updated_at, deleted_at
+            "#,
+            tag.id,
+            tag.name,
+            tag.slug,
+            tag.r#type,
+            tag.description,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(created)
+    }
+
+    async fn update(&self, tag: Tag) -> Result<Tag, String> {
+        let updated = sqlx::query_as!(
+            Tag,
+            r#"
+            UPDATE tags
+            SET name = $2,
+                slug = $3,
+                type = $4,
+                description = $5,
+                updated_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING id, name, slug, type, description,
+                      created_at, updated_at, deleted_at
+            "#,
+            tag.id,
+            tag.name,
+            tag.slug,
+            tag.r#type,
+            tag.description,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(updated)
+    }
+
+    async fn soft_delete(&self, id: Uuid) -> Result<(), String> {
+        sqlx::query!(
+            r#"
+            UPDATE tags
+            SET deleted_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            "#,
+            id
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn soft_delete_many(&self, ids: &[Uuid]) -> Result<(), String> {
+        if ids.is_empty() {
+            return Ok(());
+        }
+
+        sqlx::query!(
+            r#"
+            UPDATE tags
+            SET deleted_at = NOW()
+            WHERE id = ANY($1) AND deleted_at IS NULL
+            "#,
+            ids
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+}
+

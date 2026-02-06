@@ -1,0 +1,32 @@
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = your_bearer_token_here
+@bannerItemId = 019c2cca-0000-7842-93ce-000000000004
+
+### Create banner item
+POST {{host}}/banner-items
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "banner_id": "019c2cca-0000-7842-93ce-000000000003",
+  "title": "Slide 1",
+  "subtitle": "Mô tả",
+  "image_url": "https://example.com/slide1.jpg",
+  "link_url": "https://example.com",
+  "position": 1
+}
+
+### Update banner item
+PATCH {{host}}/banner-items/{{bannerItemId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Slide 1 Updated",
+  "position": 2
+}
+
+### Delete banner item
+DELETE {{host}}/banner-items/{{bannerItemId}}
+Authorization: Bearer {{authToken}}

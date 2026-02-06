@@ -1,11 +1,6 @@
 @host = http://localhost:4000/api/v1
-@authToken = your_token_here
+@authToken = your_bearer_token_here
 
-# ==========================================
-# ADMIN REQUESTS
-# ==========================================
-
-### Admin Dashboard
-# Yêu cầu user đang login phải có Role Admin hoặc quyền tương đương
+### Admin dashboard (yêu cầu role admin)
 GET {{host}}/admin/dashboard
 Authorization: Bearer {{authToken}}

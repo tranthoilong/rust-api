@@ -1,0 +1,5 @@
+# Biến dùng chung cho các file .http (REST Client)
+# Có thể copy block này vào từng file hoặc đặt authToken sau khi login
+@host = http://localhost:4000/api/v1
+@contentType = application/json
+@authToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTljMzA2My1iMmJiLTc3MWUtOGFmZi04OGE1ZWZjYmEyMGUiLCJpYXQiOjE3NzAzMzg3NTQsImV4cCI6MTc3MDM0MjM1NH0.Zw3oPnGgVOx00LMuDVWhL-eI-m-vWbSd-xN25uLl3rI
