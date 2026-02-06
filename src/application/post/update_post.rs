@@ -50,4 +50,3 @@ impl UpdatePostUseCase {
         self.repo.update(post).await
     }
 }
-

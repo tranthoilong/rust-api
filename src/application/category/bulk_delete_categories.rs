@@ -22,4 +22,3 @@ impl BulkDeleteCategoriesUseCase {
         self.repo.soft_delete_many(&input.ids).await
     }
 }
-

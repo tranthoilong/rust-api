@@ -23,4 +23,3 @@ impl<T: LanguageRepository + ?Sized + Send + Sync> LanguageRepository for std::s
         (**self).find_by_code(code).await
     }
 }
-

@@ -1,12 +1,13 @@
 use axum::{
+    Json,
     extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 use std::sync::Arc;
 
 use crate::app::state::AppState;
+use crate::application::common::list_params::ListParams;
 use crate::application::permission::{
     create_permission::CreatePermissionUseCase, delete_permission::DeletePermissionUseCase,
     get_permission::GetPermissionUseCase, get_permissions::GetPermissionsUseCase,
@@ -14,7 +15,6 @@ use crate::application::permission::{
 };
 use crate::domain::entities::permission::{NewPermission, UpdatePermission};
 use crate::interface::http::response::ApiResponse;
-use crate::application::common::list_params::ListParams;
 
 pub async fn get_permissions(
     State(state): State<Arc<AppState>>,
@@ -35,12 +35,8 @@ pub async fn get_permissions(
                 "fields": params.fields.clone(),
                 "search": params.search.clone()
             });
-            ApiResponse::<Vec<serde_json::Value>>::success_with_pagination(
-                data,
-                pagination,
-                None,
-            )
-            .into_response()
+            ApiResponse::<Vec<serde_json::Value>>::success_with_pagination(data, pagination, None)
+                .into_response()
         }
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,

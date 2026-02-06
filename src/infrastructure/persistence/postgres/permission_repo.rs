@@ -7,8 +7,8 @@ use crate::domain::repositories::permission_repository::{
     PermissionRepository, PermissionSearchFilter,
 };
 use crate::shared::utils::query::{
-    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType,
-    ListParams, PaginatedResult, SortDirection,
+    BindValue, FieldInfo, FieldType, ListParams, PaginatedResult, SortDirection, build_query,
+    encode_cursor_text, encode_cursor_ts,
 };
 
 pub struct PgPermissionRepository {
@@ -51,8 +51,7 @@ impl PermissionRepository for PgPermissionRepository {
             },
         ];
 
-        let base_sql =
-            r#"SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE deleted_at IS NULL"#;
+        let base_sql = r#"SELECT id, name, created_at, updated_at, deleted_at FROM permissions WHERE deleted_at IS NULL"#;
 
         let params = ListParams {
             search: filter.search.clone(),
@@ -81,14 +80,15 @@ impl PermissionRepository for PgPermissionRepository {
             };
         }
 
-        let items = query.fetch_all(&self.pool).await.map_err(|e| e.to_string())?;
+        let items = query
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
         let next_cursor = if items.len() as i64 == built.limit {
             if let Some(last) = items.last() {
                 match built.sort_field {
                     "name" => Some(encode_cursor_text(&last.name, last.id)),
-                    "created_at" => last
-                        .created_at
-                        .map(|dt| encode_cursor_ts(dt, last.id)),
+                    "created_at" => last.created_at.map(|dt| encode_cursor_ts(dt, last.id)),
                     _ => None,
                 }
             } else {

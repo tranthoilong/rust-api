@@ -71,4 +71,3 @@ impl<T: BannerRepository + ?Sized + Send + Sync> BannerRepository for std::sync:
         (**self).delete_item(id).await
     }
 }
-

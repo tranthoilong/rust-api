@@ -3,46 +3,44 @@ use crate::infrastructure::persistence::postgres::{
     audit_log_repo::PgAuditLogRepository, banner_repo::PgBannerRepository,
     category_repo::PgCategoryRepository, language_repo::PgLanguageRepository,
     media_repo::PgMediaRepository, permission_repo::PgPermissionRepository,
-    post_repo::PgPostRepository, role_repo::PgRoleRepository,
-    setting_repo::PgSettingRepository, tag_repo::PgTagRepository,
-    user_profile_repo::PgUserProfileRepository, user_repo::PgUserRepository,
+    post_repo::PgPostRepository, role_repo::PgRoleRepository, setting_repo::PgSettingRepository,
+    tag_repo::PgTagRepository, user_profile_repo::PgUserProfileRepository,
+    user_repo::PgUserRepository,
 };
+use crate::interface::http::handlers::audit_log_handler::list_audit_logs;
 use crate::interface::http::handlers::auth_handler::{login, me, register};
+use crate::interface::http::handlers::banner_handler::{
+    bulk_delete_banners, create_banner, create_banner_item, delete_banner, delete_banner_item,
+    get_banner_by_key, list_active_banners, update_banner, update_banner_item,
+};
+use crate::interface::http::handlers::category_handler::{
+    bulk_delete_categories, create_category, delete_category, get_category, list_categories,
+    update_category,
+};
+use crate::interface::http::handlers::language_handler::{get_default_language, list_languages};
 use crate::interface::http::handlers::media_handler::{
     bulk_delete_media, delete_media, get_media, get_user_media, update_media, upload_media,
 };
 use crate::interface::http::handlers::permission_handler::{
     create_permission, delete_permission, get_permission, get_permissions, update_permission,
 };
+use crate::interface::http::handlers::post_handler::{
+    bulk_delete_posts, create_post, delete_post, get_post_by_slug, list_posts, update_post,
+};
 use crate::interface::http::handlers::role_handler::{
     assign_permission, create_role, delete_role, get_role, get_role_permissions, get_roles,
     revoke_permission, update_role,
 };
-use crate::interface::http::handlers::user_handler::{
-    assign_role, create_user, delete_user, get_user, get_users, revoke_role, update_user,
-};
 use crate::interface::http::handlers::settings_handler::{
     get_setting as get_setting_handler, list_settings, update_setting as update_setting_handler,
-};
-use crate::interface::http::handlers::banner_handler::{
-    bulk_delete_banners, create_banner, create_banner_item, delete_banner, delete_banner_item,
-    get_banner_by_key, list_active_banners, update_banner, update_banner_item,
-};
-use crate::interface::http::handlers::user_profile_handler::{
-    get_me_profile, update_me_profile,
-};
-use crate::interface::http::handlers::category_handler::{
-    bulk_delete_categories, create_category, delete_category, get_category, list_categories,
-    update_category,
 };
 use crate::interface::http::handlers::tag_handler::{
     bulk_delete_tags, create_tag, delete_tag, get_tag, list_tags, update_tag,
 };
-use crate::interface::http::handlers::post_handler::{
-    bulk_delete_posts, create_post, delete_post, get_post_by_slug, list_posts, update_post,
+use crate::interface::http::handlers::user_handler::{
+    assign_role, create_user, delete_user, get_user, get_users, revoke_role, update_user,
 };
-use crate::interface::http::handlers::language_handler::{list_languages, get_default_language};
-use crate::interface::http::handlers::audit_log_handler::list_audit_logs;
+use crate::interface::http::handlers::user_profile_handler::{get_me_profile, update_me_profile};
 use crate::interface::http::middleware::auth::auth_middleware;
 use axum::{
     Router, middleware,
@@ -175,12 +173,17 @@ async fn main() {
                 .route("/banners/bulk-delete", post(bulk_delete_banners))
                 // Banner Items
                 .route("/banner-items", post(create_banner_item))
-                .route("/banner-items/:id", patch(update_banner_item).delete(delete_banner_item))
+                .route(
+                    "/banner-items/:id",
+                    patch(update_banner_item).delete(delete_banner_item),
+                )
                 // Categories & Tags & Posts (blog / content)
                 .route("/categories", get(list_categories).post(create_category))
                 .route(
                     "/categories/:slug",
-                    get(get_category).patch(update_category).delete(delete_category),
+                    get(get_category)
+                        .patch(update_category)
+                        .delete(delete_category),
                 )
                 .route("/categories/bulk-delete", post(bulk_delete_categories))
                 .route("/tags", get(list_tags).post(create_tag))

@@ -16,4 +16,3 @@ impl GetSettingUseCase {
         self.repo.get_by_key(key).await
     }
 }
-

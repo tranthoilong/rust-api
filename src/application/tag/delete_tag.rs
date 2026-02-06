@@ -17,4 +17,3 @@ impl DeleteTagUseCase {
         self.repo.soft_delete(id).await
     }
 }
-

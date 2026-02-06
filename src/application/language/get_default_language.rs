@@ -19,5 +19,3 @@ impl GetDefaultLanguageUseCase {
             .map_err(|e| format!("Failed to get default language: {}", e))
     }
 }
-
-

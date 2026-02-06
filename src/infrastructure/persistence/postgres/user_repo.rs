@@ -4,8 +4,8 @@ use sqlx::{Pool, Postgres, Row};
 use crate::domain::entities::user::{NewUser, UpdateUser, User, UserStatus};
 use crate::domain::repositories::user_repository::{UserRepository, UserSearchFilter};
 use crate::shared::utils::query::{
-    build_query, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo, FieldType,
-    ListParams, PaginatedResult, SortDirection,
+    BindValue, FieldInfo, FieldType, ListParams, PaginatedResult, SortDirection, build_query,
+    encode_cursor_text, encode_cursor_ts,
 };
 
 pub struct PgUserRepository {
@@ -83,16 +83,17 @@ impl UserRepository for PgUserRepository {
             };
         }
 
-        let items = query.fetch_all(&self.pool).await.map_err(|e| e.to_string())?;
+        let items = query
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
 
         let next_cursor = if items.len() as i64 == built.limit {
             if let Some(last) = items.last() {
                 match built.sort_field {
                     "name" => Some(encode_cursor_text(&last.name, last.id)),
                     "email" => Some(encode_cursor_text(&last.email, last.id)),
-                    "created_at" => last
-                        .created_at
-                        .map(|dt| encode_cursor_ts(dt, last.id)),
+                    "created_at" => last.created_at.map(|dt| encode_cursor_ts(dt, last.id)),
                     _ => None,
                 }
             } else {
@@ -152,9 +153,12 @@ impl UserRepository for PgUserRepository {
         let email: String = row.try_get("email").map_err(|e| e.to_string())?;
         let password: String = row.try_get("password").map_err(|e| e.to_string())?;
         let status: Option<UserStatus> = row.try_get("status").map_err(|e| e.to_string())?;
-        let created_at: Option<chrono::NaiveDateTime> = row.try_get("created_at").map_err(|e| e.to_string())?;
-        let updated_at: Option<chrono::NaiveDateTime> = row.try_get("updated_at").map_err(|e| e.to_string())?;
-        let deleted_at: Option<chrono::NaiveDateTime> = row.try_get("deleted_at").map_err(|e| e.to_string())?;
+        let created_at: Option<chrono::NaiveDateTime> =
+            row.try_get("created_at").map_err(|e| e.to_string())?;
+        let updated_at: Option<chrono::NaiveDateTime> =
+            row.try_get("updated_at").map_err(|e| e.to_string())?;
+        let deleted_at: Option<chrono::NaiveDateTime> =
+            row.try_get("deleted_at").map_err(|e| e.to_string())?;
 
         Ok(User {
             id,

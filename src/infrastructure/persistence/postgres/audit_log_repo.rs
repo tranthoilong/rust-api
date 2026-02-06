@@ -66,4 +66,3 @@ impl AuditLogRepository for PgAuditLogRepository {
         Ok(logs)
     }
 }
-

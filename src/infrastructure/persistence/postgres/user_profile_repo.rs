@@ -33,11 +33,7 @@ impl UserProfileRepository for PgUserProfileRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn upsert(
-        &self,
-        user_id: Uuid,
-        data: UpdateUserProfile,
-    ) -> Result<UserProfile, String> {
+    async fn upsert(&self, user_id: Uuid, data: UpdateUserProfile) -> Result<UserProfile, String> {
         sqlx::query_as!(
             UserProfile,
             r#"
@@ -64,4 +60,3 @@ impl UserProfileRepository for PgUserProfileRepository {
         .map_err(|e| e.to_string())
     }
 }
-

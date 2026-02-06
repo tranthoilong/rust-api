@@ -43,4 +43,3 @@ impl UpdateTagUseCase {
         self.repo.update(tag).await
     }
 }
-

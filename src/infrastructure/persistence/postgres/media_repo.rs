@@ -4,8 +4,8 @@ use sqlx::{Pool, Postgres};
 use crate::domain::entities::media::{Media, NewMedia};
 use crate::domain::repositories::media_repository::{MediaRepository, MediaSearchFilter};
 use crate::shared::utils::query::{
-    build_query, build_query_with_seed, encode_cursor_text, encode_cursor_ts, BindValue, FieldInfo,
-    FieldType, ListParams, PaginatedResult, SortDirection,
+    BindValue, FieldInfo, FieldType, ListParams, PaginatedResult, SortDirection, build_query,
+    build_query_with_seed, encode_cursor_text, encode_cursor_ts,
 };
 
 pub struct PgMediaRepository {
@@ -103,8 +103,7 @@ impl MediaRepository for PgMediaRepository {
             },
         ];
 
-        let base_sql =
-            "SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE deleted_at IS NULL";
+        let base_sql = "SELECT id, user_id, media_type, file_path, created_at, updated_at, deleted_at FROM media WHERE deleted_at IS NULL";
 
         let params = ListParams {
             search: filter.search.clone(),
@@ -146,15 +145,16 @@ impl MediaRepository for PgMediaRepository {
             };
         }
 
-        let items = query.fetch_all(&self.pool).await.map_err(|e| e.to_string())?;
+        let items = query
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
         let next_cursor = if items.len() as i64 == built.limit {
             if let Some(last) = items.last() {
                 match built.sort_field {
                     "media_type" => Some(encode_cursor_text(&last.media_type, last.id)),
                     "file_path" => Some(encode_cursor_text(&last.file_path, last.id)),
-                    "created_at" => last
-                        .created_at
-                        .map(|dt| encode_cursor_ts(dt, last.id)),
+                    "created_at" => last.created_at.map(|dt| encode_cursor_ts(dt, last.id)),
                     _ => None,
                 }
             } else {

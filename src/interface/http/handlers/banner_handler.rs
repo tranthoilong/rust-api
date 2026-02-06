@@ -1,29 +1,22 @@
 use std::sync::Arc;
 
 use axum::{
+    Json,
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 
 use crate::{
     app::state::AppState,
     application::banner::{
-        bulk_delete_banners::BulkDeleteBannersInput,
-        bulk_delete_banners::BulkDeleteBannersUseCase,
-        create_banner::CreateBannerInput,
-        create_banner::CreateBannerUseCase,
-        create_banner_item::CreateBannerItemInput,
-        create_banner_item::CreateBannerItemUseCase,
-        delete_banner::DeleteBannerUseCase,
-        delete_banner_item::DeleteBannerItemUseCase,
-        get_banner_by_key::GetBannerByKeyUseCase,
-        list_active_banners::ListActiveBannersUseCase,
-        update_banner::UpdateBannerInput,
-        update_banner::UpdateBannerUseCase,
-        update_banner_item::UpdateBannerItemInput,
-        update_banner_item::UpdateBannerItemUseCase,
+        bulk_delete_banners::BulkDeleteBannersInput, bulk_delete_banners::BulkDeleteBannersUseCase,
+        create_banner::CreateBannerInput, create_banner::CreateBannerUseCase,
+        create_banner_item::CreateBannerItemInput, create_banner_item::CreateBannerItemUseCase,
+        delete_banner::DeleteBannerUseCase, delete_banner_item::DeleteBannerItemUseCase,
+        get_banner_by_key::GetBannerByKeyUseCase, list_active_banners::ListActiveBannersUseCase,
+        update_banner::UpdateBannerInput, update_banner::UpdateBannerUseCase,
+        update_banner_item::UpdateBannerItemInput, update_banner_item::UpdateBannerItemUseCase,
     },
     interface::http::response::ApiResponse,
 };
@@ -78,8 +71,11 @@ pub async fn create_banner(
 ) -> impl IntoResponse {
     let usecase = CreateBannerUseCase::new(state.banner_repo.clone());
     match usecase.execute(payload).await {
-        Ok(banner) => ApiResponse::success(serde_json::json!(banner), Some("Banner created".to_string()))
-            .into_response(),
+        Ok(banner) => ApiResponse::success(
+            serde_json::json!(banner),
+            Some("Banner created".to_string()),
+        )
+        .into_response(),
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "INTERNAL_SERVER_ERROR".to_string(),
@@ -98,8 +94,11 @@ pub async fn update_banner(
 ) -> impl IntoResponse {
     let usecase = UpdateBannerUseCase::new(state.banner_repo.clone());
     match usecase.execute(id, payload).await {
-        Ok(banner) => ApiResponse::success(serde_json::json!(banner), Some("Banner updated".to_string()))
-            .into_response(),
+        Ok(banner) => ApiResponse::success(
+            serde_json::json!(banner),
+            Some("Banner updated".to_string()),
+        )
+        .into_response(),
         Err(e) => {
             let status = if e.contains("not found") {
                 StatusCode::NOT_FOUND
@@ -155,8 +154,11 @@ pub async fn create_banner_item(
 ) -> impl IntoResponse {
     let usecase = CreateBannerItemUseCase::new(state.banner_repo.clone());
     match usecase.execute(payload).await {
-        Ok(item) => ApiResponse::success(serde_json::json!(item), Some("Banner item created".to_string()))
-            .into_response(),
+        Ok(item) => ApiResponse::success(
+            serde_json::json!(item),
+            Some("Banner item created".to_string()),
+        )
+        .into_response(),
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "INTERNAL_SERVER_ERROR".to_string(),
@@ -175,8 +177,11 @@ pub async fn update_banner_item(
 ) -> impl IntoResponse {
     let usecase = UpdateBannerItemUseCase::new(state.banner_repo.clone());
     match usecase.execute(id, payload).await {
-        Ok(item) => ApiResponse::success(serde_json::json!(item), Some("Banner item updated".to_string()))
-            .into_response(),
+        Ok(item) => ApiResponse::success(
+            serde_json::json!(item),
+            Some("Banner item updated".to_string()),
+        )
+        .into_response(),
         Err(e) => {
             let status = if e.contains("not found") {
                 StatusCode::NOT_FOUND
@@ -194,8 +199,11 @@ pub async fn delete_banner_item(
 ) -> impl IntoResponse {
     let usecase = DeleteBannerItemUseCase::new(state.banner_repo.clone());
     match usecase.execute(id).await {
-        Ok(_) => ApiResponse::success(serde_json::json!({}), Some("Banner item deleted".to_string()))
-            .into_response(),
+        Ok(_) => ApiResponse::success(
+            serde_json::json!({}),
+            Some("Banner item deleted".to_string()),
+        )
+        .into_response(),
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "INTERNAL_SERVER_ERROR".to_string(),

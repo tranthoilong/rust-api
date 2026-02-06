@@ -1,8 +1,8 @@
 use axum::{
+    Json,
     extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 use std::sync::Arc;
 
@@ -39,12 +39,8 @@ pub async fn get_roles(
                 "fields": params.fields.clone(),
                 "search": params.search.clone()
             });
-            ApiResponse::<Vec<serde_json::Value>>::success_with_pagination(
-                data,
-                pagination,
-                None,
-            )
-            .into_response()
+            ApiResponse::<Vec<serde_json::Value>>::success_with_pagination(data, pagination, None)
+                .into_response()
         }
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,

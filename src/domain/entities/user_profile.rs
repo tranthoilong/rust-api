@@ -23,4 +23,3 @@ pub struct UpdateUserProfile {
     pub address: Option<String>,
     pub bio: Option<String>,
 }
-

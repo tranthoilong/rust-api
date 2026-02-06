@@ -1,12 +1,13 @@
 use axum::{
+    Json,
     extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 use std::sync::Arc;
 
 use crate::app::state::AppState;
+use crate::application::common::list_params::ListParams;
 use crate::application::role::{
     assign_role_to_user::AssignRoleToUserUseCase, revoke_role_from_user::RevokeRoleFromUserUseCase,
 };
@@ -16,7 +17,6 @@ use crate::application::user::{
 };
 use crate::domain::entities::user::{NewUser, UpdateUser};
 use crate::interface::http::response::ApiResponse;
-use crate::application::common::list_params::ListParams;
 use uuid::Uuid;
 
 pub async fn get_users(
@@ -39,12 +39,8 @@ pub async fn get_users(
                 "fields": params.fields.clone(),
                 "search": params.search.clone()
             });
-            ApiResponse::<Vec<serde_json::Value>>::success_with_pagination(
-                data,
-                pagination,
-                None,
-            )
-            .into_response()
+            ApiResponse::<Vec<serde_json::Value>>::success_with_pagination(data, pagination, None)
+                .into_response()
         }
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,

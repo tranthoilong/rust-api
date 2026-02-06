@@ -18,7 +18,12 @@ impl GetRolesUseCase {
         };
         let limit = params.limit.unwrap_or(20).clamp(1, 100);
         self.repo
-            .search(&filter, params.sort_by.clone(), params.cursor.clone(), limit)
+            .search(
+                &filter,
+                params.sort_by.clone(),
+                params.cursor.clone(),
+                limit,
+            )
             .await
     }
 }

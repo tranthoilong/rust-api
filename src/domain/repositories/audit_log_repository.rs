@@ -27,4 +27,3 @@ impl<T: AuditLogRepository + ?Sized + Send + Sync> AuditLogRepository for std::s
         (**self).search(filter).await
     }
 }
-

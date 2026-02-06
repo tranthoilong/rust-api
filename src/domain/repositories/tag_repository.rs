@@ -44,4 +44,3 @@ impl<T: TagRepository + ?Sized + Send + Sync> TagRepository for std::sync::Arc<T
         (**self).soft_delete_many(ids).await
     }
 }
-

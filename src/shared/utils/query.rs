@@ -1,4 +1,4 @@
-use base64::{engine::general_purpose, Engine as _};
+use base64::{Engine as _, engine::general_purpose};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use uuid::Uuid;
 
@@ -67,7 +67,8 @@ fn decode_cursor(cursor: &str) -> Result<CursorData, String> {
     let decoded = general_purpose::STANDARD
         .decode(cursor)
         .map_err(|e| format!("Invalid cursor: {e}"))?;
-    let decoded_str = String::from_utf8(decoded).map_err(|e| format!("Invalid cursor utf8: {e}"))?;
+    let decoded_str =
+        String::from_utf8(decoded).map_err(|e| format!("Invalid cursor utf8: {e}"))?;
     let mut parts = decoded_str.splitn(2, '|');
     let sort_raw = parts
         .next()
@@ -149,7 +150,11 @@ pub fn build_query_with_seed(
     let mut idx: i32 = start_index;
 
     // search fields
-    let search_fields = sanitize_fields(params.fields.as_deref(), allowed_fields, default_search_fields);
+    let search_fields = sanitize_fields(
+        params.fields.as_deref(),
+        allowed_fields,
+        default_search_fields,
+    );
     if let Some(search) = params.search.as_ref().filter(|s| !s.is_empty()) {
         let pattern = format!("%{search}%");
         let mut or_parts = Vec::new();
@@ -171,7 +176,10 @@ pub fn build_query_with_seed(
         let field = parts.next().unwrap_or(default_sort);
         let dir = parts.next().unwrap_or_else(|| default_dir.as_sql());
         let dir = SortDirection::from_str(dir);
-        if let Some(info) = allowed_fields.iter().find(|f| f.name.eq_ignore_ascii_case(field)) {
+        if let Some(info) = allowed_fields
+            .iter()
+            .find(|f| f.name.eq_ignore_ascii_case(field))
+        {
             (info, dir)
         } else {
             (
@@ -207,7 +215,8 @@ pub fn build_query_with_seed(
                 };
                 clauses.push(format!(
                     "({sort_col}, id) {cmp} (${}, ${})",
-                    idx_sort, idx_id,
+                    idx_sort,
+                    idx_id,
                     sort_col = sort_field.name
                 ));
                 binds.push(BindValue::Text(decoded.sort_raw));
@@ -227,7 +236,8 @@ pub fn build_query_with_seed(
                 };
                 clauses.push(format!(
                     "({sort_col}, id) {cmp} (${}, ${})",
-                    idx_sort, idx_id,
+                    idx_sort,
+                    idx_id,
                     sort_col = sort_field.name
                 ));
                 binds.push(BindValue::Timestamp(dt));

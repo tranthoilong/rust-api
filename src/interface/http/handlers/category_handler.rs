@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use axum::{
+    Json,
     extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 use serde::Deserialize;
 use uuid::Uuid;
@@ -142,8 +142,11 @@ pub async fn bulk_delete_categories(
     let usecase = BulkDeleteCategoriesUseCase::new(state.category_repo.clone());
 
     match usecase.execute(payload).await {
-        Ok(_) => ApiResponse::success(serde_json::json!({}), Some("Categories deleted".to_string()))
-            .into_response(),
+        Ok(_) => ApiResponse::success(
+            serde_json::json!({}),
+            Some("Categories deleted".to_string()),
+        )
+        .into_response(),
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "INTERNAL_SERVER_ERROR".to_string(),
@@ -154,4 +157,3 @@ pub async fn bulk_delete_categories(
         .into_response(),
     }
 }
-

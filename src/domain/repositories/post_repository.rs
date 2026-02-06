@@ -56,4 +56,3 @@ impl<T: PostRepository + ?Sized + Send + Sync> PostRepository for std::sync::Arc
         (**self).soft_delete_many(ids).await
     }
 }
-

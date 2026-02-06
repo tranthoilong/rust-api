@@ -19,4 +19,3 @@ impl GetAuditLogsUseCase {
             .map_err(|e| format!("Failed to search audit logs: {}", e))
     }
 }
-

@@ -19,5 +19,3 @@ impl GetLanguagesUseCase {
             .map_err(|e| format!("Failed to list languages: {}", e))
     }
 }
-
-
