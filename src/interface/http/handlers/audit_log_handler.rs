@@ -3,8 +3,7 @@ use std::sync::Arc;
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
 
 use crate::{
-    app::state::AppState,
-    application::audit_log::get_audit_logs::GetAuditLogsUseCase,
+    app::state::AppState, application::audit_log::get_audit_logs::GetAuditLogsUseCase,
     domain::repositories::audit_log_repository::AuditLogFilter,
     interface::http::response::ApiResponse,
 };
@@ -31,5 +30,3 @@ pub async fn list_audit_logs(State(state): State<Arc<AppState>>) -> impl IntoRes
         .into_response(),
     }
 }
-
-

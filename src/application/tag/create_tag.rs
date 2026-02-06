@@ -37,4 +37,3 @@ impl CreateTagUseCase {
         self.repo.create(tag).await
     }
 }
-

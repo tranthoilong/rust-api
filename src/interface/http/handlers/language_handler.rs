@@ -4,7 +4,9 @@ use axum::{extract::State, http::StatusCode, response::IntoResponse};
 
 use crate::{
     app::state::AppState,
-    application::language::{get_default_language::GetDefaultLanguageUseCase, get_languages::GetLanguagesUseCase},
+    application::language::{
+        get_default_language::GetDefaultLanguageUseCase, get_languages::GetLanguagesUseCase,
+    },
     interface::http::response::ApiResponse,
 };
 
@@ -47,4 +49,3 @@ pub async fn get_default_language(State(state): State<Arc<AppState>>) -> impl In
         .into_response(),
     }
 }
-

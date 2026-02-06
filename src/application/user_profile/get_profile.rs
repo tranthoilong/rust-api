@@ -17,4 +17,3 @@ impl GetProfileUseCase {
         self.repo.find_by_user_id(user_id).await
     }
 }
-

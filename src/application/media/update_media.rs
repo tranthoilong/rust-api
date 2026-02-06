@@ -1,7 +1,4 @@
-use crate::domain::{
-    entities::media::Media,
-    repositories::media_repository::MediaRepository,
-};
+use crate::domain::{entities::media::Media, repositories::media_repository::MediaRepository};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -39,4 +36,3 @@ impl<R: MediaRepository> UpdateMediaUseCase<R> {
         self.repo.update(media).await
     }
 }
-

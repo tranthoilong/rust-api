@@ -45,4 +45,3 @@ impl UpdateCategoryUseCase {
         self.repo.update(category).await
     }
 }
-

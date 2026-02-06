@@ -64,4 +64,3 @@ impl SettingRepository for PgSettingRepository {
         .map_err(|e| e.to_string())
     }
 }
-

@@ -18,4 +18,3 @@ pub struct AuditLog {
     pub user_agent: Option<String>,
     pub created_at: Option<NaiveDateTime>,
 }
-

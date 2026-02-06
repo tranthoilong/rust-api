@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use axum::{
+    Json,
     extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 use serde::Deserialize;
 use uuid::Uuid;
@@ -154,4 +154,3 @@ pub async fn bulk_delete_tags(
         .into_response(),
     }
 }
-

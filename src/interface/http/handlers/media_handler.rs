@@ -1,8 +1,8 @@
 use axum::{
     extract::{Extension, Multipart, Path as AxumPath, Query, State},
     http::StatusCode,
-    response::Json,
     response::IntoResponse,
+    response::Json,
 };
 use std::path::Path;
 use std::sync::Arc;
@@ -10,6 +10,7 @@ use tokio::{fs, io::AsyncWriteExt};
 
 use crate::{
     app::state::AppState,
+    application::common::list_params::ListParams,
     application::media::{
         bulk_delete_media::{BulkDeleteMediaInput, BulkDeleteMediaUseCase},
         create_media::CreateMediaUseCase,
@@ -20,7 +21,6 @@ use crate::{
     domain::entities::media::{Media, NewMedia},
     interface::http::response::ApiResponse,
     shared::utils::jwt::Claims,
-    application::common::list_params::ListParams,
 };
 
 const UPLOAD_ROOT: &str = "uploads";
@@ -135,8 +135,10 @@ pub async fn update_media(
     let use_case = UpdateMediaUseCase::new(state.media_repo.clone());
 
     match use_case.execute(id, payload).await {
-        Ok(media) => ApiResponse::success(serde_json::json!(media), Some("Media updated".to_string()))
-            .into_response(),
+        Ok(media) => {
+            ApiResponse::success(serde_json::json!(media), Some("Media updated".to_string()))
+                .into_response()
+        }
         Err(e) => {
             let status = if e.contains("not found") {
                 StatusCode::NOT_FOUND

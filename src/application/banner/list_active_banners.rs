@@ -16,4 +16,3 @@ impl ListActiveBannersUseCase {
         self.repo.list_active().await
     }
 }
-

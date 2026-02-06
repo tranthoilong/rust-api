@@ -22,4 +22,3 @@ impl GetPostsUseCase {
         self.repo.search(&filter).await
     }
 }
-

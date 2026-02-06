@@ -13,4 +13,3 @@ pub struct Setting {
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
 }
-

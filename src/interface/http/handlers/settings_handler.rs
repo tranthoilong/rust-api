@@ -83,4 +83,3 @@ pub async fn update_setting(
         .into_response(),
     }
 }
-

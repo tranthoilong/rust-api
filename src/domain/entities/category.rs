@@ -15,4 +15,3 @@ pub struct Category {
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
 }
-

@@ -16,4 +16,3 @@ impl GetPostBySlugUseCase {
         self.repo.find_by_slug(slug).await
     }
 }
-

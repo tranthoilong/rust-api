@@ -12,12 +12,7 @@ impl GetTagUseCase {
         Self { repo }
     }
 
-    pub async fn execute(
-        &self,
-        slug: &str,
-        r#type: &str,
-    ) -> Result<Option<Tag>, String> {
+    pub async fn execute(&self, slug: &str, r#type: &str) -> Result<Option<Tag>, String> {
         self.repo.find_by_slug_and_type(slug, r#type).await
     }
 }
-

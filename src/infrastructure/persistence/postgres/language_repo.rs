@@ -64,4 +64,3 @@ impl LanguageRepository for PgLanguageRepository {
         .map_err(|e| e.to_string())
     }
 }
-

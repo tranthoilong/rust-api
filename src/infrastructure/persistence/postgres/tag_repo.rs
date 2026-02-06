@@ -33,11 +33,7 @@ impl TagRepository for PgTagRepository {
         .map_err(|e| e.to_string())
     }
 
-    async fn find_by_slug_and_type(
-        &self,
-        slug: &str,
-        r#type: &str,
-    ) -> Result<Option<Tag>, String> {
+    async fn find_by_slug_and_type(&self, slug: &str, r#type: &str) -> Result<Option<Tag>, String> {
         sqlx::query_as!(
             Tag,
             r#"
@@ -159,4 +155,3 @@ impl TagRepository for PgTagRepository {
         Ok(())
     }
 }
-

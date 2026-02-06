@@ -16,4 +16,3 @@ impl GetSettingsUseCase {
         self.repo.list().await
     }
 }
-

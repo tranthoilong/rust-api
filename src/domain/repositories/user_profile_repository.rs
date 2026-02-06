@@ -18,4 +18,3 @@ impl<T: UserProfileRepository + ?Sized + Send + Sync> UserProfileRepository for 
         (**self).upsert(user_id, data).await
     }
 }
-

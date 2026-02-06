@@ -14,4 +14,3 @@ impl<R: MediaRepository> DeleteMediaUseCase<R> {
         self.repo.soft_delete(id).await
     }
 }
-

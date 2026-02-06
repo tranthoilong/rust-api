@@ -17,4 +17,3 @@ impl DeletePostUseCase {
         self.repo.soft_delete(id).await
     }
 }
-

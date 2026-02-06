@@ -24,7 +24,11 @@ impl UpdateBannerItemUseCase {
         Self { repo }
     }
 
-    pub async fn execute(&self, id: Uuid, input: UpdateBannerItemInput) -> Result<BannerItem, String> {
+    pub async fn execute(
+        &self,
+        id: Uuid,
+        input: UpdateBannerItemInput,
+    ) -> Result<BannerItem, String> {
         let existing = self
             .repo
             .find_item_by_id(id)

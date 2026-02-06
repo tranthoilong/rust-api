@@ -15,4 +15,3 @@ pub struct PaginatedResult<T> {
     pub next_cursor: Option<String>,
     pub limit: i64,
 }
-

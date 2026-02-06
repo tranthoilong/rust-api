@@ -8,7 +8,9 @@ use axum::{
 
 use crate::{
     app::state::AppState,
-    application::user_profile::{get_profile::GetProfileUseCase, update_profile::UpdateProfileUseCase},
+    application::user_profile::{
+        get_profile::GetProfileUseCase, update_profile::UpdateProfileUseCase,
+    },
     domain::entities::user_profile::UpdateUserProfile,
     interface::http::response::ApiResponse,
     shared::utils::jwt::Claims,
@@ -28,7 +30,7 @@ pub async fn get_me_profile(
                 None,
                 None,
             )
-            .into_response()
+            .into_response();
         }
     };
 
@@ -36,8 +38,9 @@ pub async fn get_me_profile(
 
     match usecase.execute(user_id).await {
         Ok(Some(profile)) => ApiResponse::success(serde_json::json!(profile), None).into_response(),
-        Ok(None) => ApiResponse::success(serde_json::json!(serde_json::json!({})), None)
-            .into_response(),
+        Ok(None) => {
+            ApiResponse::success(serde_json::json!(serde_json::json!({})), None).into_response()
+        }
         Err(e) => ApiResponse::<()>::error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "INTERNAL_SERVER_ERROR".to_string(),
@@ -64,7 +67,7 @@ pub async fn update_me_profile(
                 None,
                 None,
             )
-            .into_response()
+            .into_response();
         }
     };
 
@@ -82,4 +85,3 @@ pub async fn update_me_profile(
         .into_response(),
     }
 }
-

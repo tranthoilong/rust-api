@@ -17,4 +17,3 @@ impl DeleteCategoryUseCase {
         self.repo.soft_delete(id).await
     }
 }
-

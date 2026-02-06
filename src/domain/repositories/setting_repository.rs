@@ -22,4 +22,3 @@ impl<T: SettingRepository + ?Sized + Send + Sync> SettingRepository for std::syn
         (**self).list().await
     }
 }
-

@@ -45,4 +45,3 @@ impl CreatePostUseCase {
         self.repo.create(post).await
     }
 }
-

@@ -16,4 +16,3 @@ impl GetTagsUseCase {
         self.repo.list_by_type(r#type).await
     }
 }
-

@@ -172,4 +172,3 @@ impl PostRepository for PgPostRepository {
         Ok(())
     }
 }
-

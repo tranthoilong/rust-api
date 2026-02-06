@@ -20,4 +20,3 @@ impl UpdateSettingUseCase {
         self.repo.set(key, value).await
     }
 }
-

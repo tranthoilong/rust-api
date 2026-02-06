@@ -52,4 +52,3 @@ impl<T: CategoryRepository + ?Sized + Send + Sync> CategoryRepository for std::s
         (**self).soft_delete_many(ids).await
     }
 }
-

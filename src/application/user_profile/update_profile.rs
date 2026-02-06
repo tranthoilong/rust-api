@@ -21,4 +21,3 @@ impl UpdateProfileUseCase {
         self.repo.upsert(user_id, data).await
     }
 }
-

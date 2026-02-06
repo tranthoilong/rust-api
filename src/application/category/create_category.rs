@@ -39,4 +39,3 @@ impl CreateCategoryUseCase {
         self.repo.create(category).await
     }
 }
-
