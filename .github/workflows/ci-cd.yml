@@ -23,6 +23,21 @@ jobs:
     name: Code Quality Check
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rust_api_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,17 +58,34 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - name: Install Postgres client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/rust_api_ci
+        run: |
+          echo "Running database migrations..."
+          chmod +x ./init_db.sh
+          ./init_db.sh
+
       - name: Check code formatting (rustfmt)
         run: |
           echo "Checking Rust formatting with rustfmt..."
           cargo fmt --all -- --check
 
       - name: Run Clippy (linter)
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/rust_api_ci
         run: |
           echo "Running Clippy..."
           cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Build (debug)
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/rust_api_ci
         run: |
           echo "Building project..."
           cargo build --all-features

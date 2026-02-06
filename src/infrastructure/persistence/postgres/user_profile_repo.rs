@@ -30,7 +30,7 @@ impl UserProfileRepository for PgUserProfileRepository {
         )
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e: sqlx::Error| e.to_string())
     }
 
     async fn upsert(&self, user_id: Uuid, data: UpdateUserProfile) -> Result<UserProfile, String> {
@@ -57,6 +57,6 @@ impl UserProfileRepository for PgUserProfileRepository {
         )
         .fetch_one(&self.pool)
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e: sqlx::Error| e.to_string())
     }
 }
