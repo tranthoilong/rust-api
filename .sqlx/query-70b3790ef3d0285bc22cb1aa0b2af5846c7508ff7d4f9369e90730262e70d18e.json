@@ -1,0 +1,80 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT id, user_id, action, entity_type, entity_id,\n                   metadata as \"metadata: _\",\n                   old_data as \"old_data: _\",\n                   new_data as \"new_data: _\",\n                   ip_address, user_agent, created_at\n            FROM audit_logs\n            ORDER BY created_at DESC\n            LIMIT 100\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "action",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "entity_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "entity_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "metadata: _",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "old_data: _",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "new_data: _",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "ip_address",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "user_agent",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "70b3790ef3d0285bc22cb1aa0b2af5846c7508ff7d4f9369e90730262e70d18e"
+}
